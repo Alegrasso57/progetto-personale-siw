@@ -57,6 +57,11 @@ public class RichiestaAdozioneService {
         return richiestaAdozioneRepository.findByAdottante(adottante);
     }
 
+    @Transactional(readOnly = true)
+    public List<RichiestaAdozione> findInAttesa() {
+        return richiestaAdozioneRepository.findByStato(StatoRichiesta.IN_ATTESA);
+    }
+
     @Transactional
     public RichiestaAdozione creaRichiesta(Long animaleId, Long adottanteId, String motivazione) {
 

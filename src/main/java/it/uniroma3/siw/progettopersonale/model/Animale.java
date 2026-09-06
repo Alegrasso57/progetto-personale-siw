@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +25,10 @@ public class Animale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Il nome è obbligatorio")
     private String nome;
 
-    @Column(nullable = false)
+    @NotBlank(message = "La specie è obbligatoria")
     private String specie;
 
     private String razza;

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Richieste di adozione</title>
+</head>
+<body>
+<div class="container">
+    <h1>Richieste di adozione da valutare</h1>
+
+    <div class="card" th:each="richiesta : ${richiestaList}">
+        <p th:text="'Animale: ' + ${richiesta.animale.nome}">Animale</p>
+        <p th:text="'Adottante: ' + ${richiesta.adottante.nome} + ' ' + ${richiesta.adottante.cognome}">Adottante</p>
+        <p th:text="'Data richiesta: ' + ${richiesta.dataRichiesta}">Data</p>
+        <p th:text="${richiesta.motivazione}">Motivazione</p>
+        <div class="actions">
+            <form th:action="@{'/volontario/richieste/' + ${richiesta.id} + '/approva'}" method="post">
+                <button type="submit">Approva</button>
+            </form>
+            <form th:action="@{'/volontario/richieste/' + ${richiesta.id} + '/rifiuta'}" method="post">
+                <button type="submit">Rifiuta</button>
+            </form>
+        </div>
+    </div>
+    <p th:if="${#lists.isEmpty(richiestaList)}">Non ci sono richieste in attesa.</p>
+
+    <p><a th:href="@{/}">Torna alla home</a></p>
+</div>
+</body>
+</html>

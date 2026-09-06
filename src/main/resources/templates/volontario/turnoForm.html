@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Nuovo turno</title>
+</head>
+<body>
+<div class="container">
+    <h1>Nuovo turno</h1>
+
+    <p th:if="${errore != null}" th:text="${errore}" class="errore">Messaggio di errore</p>
+
+    <form th:action="@{/volontario/turni}" method="post">
+        <label>Volontario:
+            <select name="volontarioId">
+                <option th:each="volontario : ${volontarioDisponibili}"
+                        th:value="${volontario.id}"
+                        th:text="${volontario.nome} + ' ' + ${volontario.cognome}">
+                    Volontario
+                </option>
+            </select>
+        </label>
+        <label>Animale:
+            <select name="animaleId">
+                <option th:each="animale : ${animaleDisponibili}"
+                        th:value="${animale.id}"
+                        th:text="${animale.nome}">
+                    Animale
+                </option>
+            </select>
+        </label>
+        <label>Data: <input type="date" name="data"></label>
+        <label>Ora inizio: <input type="time" name="oraInizio"></label>
+        <label>Ora fine: <input type="time" name="oraFine"></label>
+        <label>Note: <textarea name="note" rows="3"></textarea></label>
+
+        <button type="submit">Crea turno</button>
+    </form>
+
+    <p><a th:href="@{/volontario/turni}">Annulla</a></p>
+</div>
+</body>
+</html>

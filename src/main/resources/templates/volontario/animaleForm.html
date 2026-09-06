@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Form animale</title>
+</head>
+<body>
+<div class="container">
+    <h1>Animale</h1>
+
+    <p class="errore" th:if="${erroreValidazione}">
+        Controlla i campi obbligatori: tutti i valori devono essere validi.
+    </p>
+
+    <form th:action="@{/volontario/animali}" method="post">
+        <input type="hidden" name="id" th:value="${animale.id}">
+        <label>Nome: <input type="text" name="nome" th:value="${animale.nome}"></label>
+        <label>Specie: <input type="text" name="specie" th:value="${animale.specie}"></label>
+        <label>Razza: <input type="text" name="razza" th:value="${animale.razza}"></label>
+        <label>Età: <input type="number" name="eta" th:value="${animale.eta}"></label>
+        <label>Sesso: <input type="text" name="sesso" th:value="${animale.sesso}"></label>
+        <label>Descrizione: <textarea name="descrizione" th:text="${animale.descrizione}"></textarea></label>
+
+        <label>Stato:
+            <select name="stato">
+                <option th:each="stato : ${statiAnimale}"
+                        th:value="${stato}"
+                        th:text="${stato}"
+                        th:selected="${animale.stato != null and animale.stato == stato}">
+                    Stato
+                </option>
+            </select>
+        </label>
+
+        <button type="submit">Salva</button>
+    </form>
+
+    <p><a th:href="@{/volontario/animali}">Annulla</a></p>
+</div>
+</body>
+</html>

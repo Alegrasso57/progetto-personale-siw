@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Gestione animali</title>
+</head>
+<body>
+<div class="container">
+    <h1>Gestione animali</h1>
+
+    <a th:href="@{/volontario/animali/nuovo}">+ Nuovo animale</a>
+
+    <div class="card" th:each="animale : ${animaleList}">
+        <span th:switch="${animale.stato.name()}">
+            <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
+            <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
+            <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
+        </span>
+        <span th:text="${animale.nome} + ' - ' + ${animale.specie}">Nome - Specie</span>
+        <div class="actions">
+            <a class="button-like" th:href="@{'/volontario/animali/' + ${animale.id} + '/modifica'}">Modifica</a>
+            <form th:action="@{'/volontario/animali/' + ${animale.id} + '/elimina'}" method="post">
+                <button type="submit">Elimina</button>
+            </form>
+        </div>
+    </div>
+    <p th:if="${#lists.isEmpty(animaleList)}">Non ci sono ancora animali registrati.</p>
+
+    <p><a th:href="@{/}">Torna alla home</a></p>
+</div>
+</body>
+</html>
