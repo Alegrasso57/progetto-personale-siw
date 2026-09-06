@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Le mie richieste</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
+
+    <div class="container">
+        <h1>Le mie richieste di adozione</h1>
+
+        <div class="card" th:each="richiesta : ${richieste}">
+            <span th:switch="${richiesta.stato.name()}">
+                <span th:case="'IN_ATTESA'" class="badge badge-in-valutazione">In attesa</span>
+                <span th:case="'APPROVATA'" class="badge badge-disponibile">Approvata</span>
+                <span th:case="'RIFIUTATA'" class="badge badge-adottato">Rifiutata</span>
+            </span>
+            <p th:text="'Animale: ' + ${richiesta.animale.nome}">Animale</p>
+            <p th:text="'Data richiesta: ' + ${richiesta.dataRichiesta}">Data</p>
+            <p th:text="${richiesta.motivazione}">Motivazione</p>
+            <form th:if="${richiesta.stato.name() == 'IN_ATTESA'}"
+                  th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/elimina'}" method="post">
+                <button type="submit">Annulla richiesta</button>
+            </form>
+        </div>
+        <p th:if="${#lists.isEmpty(richieste)}">Non hai ancora inviato nessuna richiesta di adozione.</p>
+    </div>
+</body>
+</html>

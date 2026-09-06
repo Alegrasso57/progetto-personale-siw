@@ -1,18 +1,23 @@
 /* ===== Variabili CSS (vedi slide "Variabili CSS") ===== */
 :root {
-    --primary-color: #e0813a;
+    --primary-color: #b5652d;
+    --primary-dark: #8f4e21;
     --dark-color: #2f4538;
     --bg-color: #f7f5f0;
     --text-color: #222;
     --card-bg: #ffffff;
+    --disponibile-color: #2f855a;
+    --valutazione-color: #b7791f;
+    --adottato-color: #718096;
+    --radius: 0.5rem;
 }
 
-/* ===== Reset di base ===== */
+/* ===== Reset di base (vedi slide "CSS Box Model") ===== */
 * {
     box-sizing: border-box;
 }
 
-/* Dimensione del font sull'elemento radice: base per le unità rem (vedi slide "rem") */
+/* Font size sulla radice: base per rem (vedi slide "Dimensioni relative dei font: rem") */
 html {
     font-size: 16px;
 }
@@ -33,42 +38,53 @@ body {
     padding: 1.875rem 1.25rem;
 }
 
-/* ===== Intestazioni: em relativo al genitore ===== */
+/* ===== Intestazioni ===== */
 h1 {
     color: var(--dark-color);
     font-size: 2em;
-    border-bottom: 0.1875rem solid var(--primary-color);
-    padding-bottom: 0.625rem;
+    letter-spacing: 0.03rem;
     margin-bottom: 1.25rem;
 }
 
 h2 {
     color: var(--dark-color);
     font-size: 1.5em;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
     margin-top: 1.875rem;
 }
 
 h3 {
     color: var(--text-color);
     font-size: 1.2em;
+    margin: 0 0 0.5rem 0;
 }
 
-/* ===== Link ===== */
-a {
+/* ===== Link: pseudo-classi CSS nell'ordine LVHA (vedi slide "Pseudo classi CSS") ===== */
+a:link {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
+}
+
+a:visited {
+    color: var(--primary-dark);
 }
 
 a:hover {
     text-decoration: underline;
 }
 
-/* ===== Navigazione principale: Flexbox (vedi slide "Flexbox basics") ===== */
+a:active {
+    color: var(--dark-color);
+}
+
+/* ===== Navigazione: Flexbox con space-between (vedi slide "Spaziatura di item multipli") ===== */
 nav.main-nav {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
     background-color: var(--dark-color);
     padding: 0.75rem 1.25rem;
@@ -76,7 +92,6 @@ nav.main-nav {
 
 nav.main-nav a {
     color: white;
-    margin-right: 1.25rem;
 }
 
 /* ===== Liste di navigazione semplici ===== */
@@ -90,13 +105,53 @@ ul.link-list li {
     border-bottom: 0.0625rem solid #e0e0e0;
 }
 
-/* ===== Card per elenchi (animali, turni, recensioni): box model ===== */
+/* ===== Griglia di card responsiva con flex-grow/flex-shrink/flex-basis (vedi slide "Dimensioni flex item") ===== */
+.card-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card-grid .card {
+    flex: 1 1 16rem;
+}
+
+/* ===== Card: box model + position relative per ospitare il badge (vedi slide "position") ===== */
 .card {
+    position: relative;
     background-color: var(--card-bg);
     border: 0.0625rem solid #e0e0e0;
-    border-radius: 0.5rem;
+    border-left: 0.25rem solid var(--primary-color);
+    border-radius: var(--radius);
     padding: 1rem 1.25rem;
     margin-bottom: 0.9375rem;
+}
+
+/* ===== Badge di stato in position:absolute rispetto alla card (vedi slide "position: absolute") ===== */
+.badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius);
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03rem;
+    color: white;
+}
+
+.badge-disponibile {
+    background-color: var(--disponibile-color);
+}
+
+.badge-in-valutazione {
+    background-color: var(--valutazione-color);
+}
+
+.badge-adottato {
+    background-color: var(--adottato-color);
 }
 
 /* ===== Form ===== */
@@ -104,7 +159,7 @@ form {
     background-color: var(--card-bg);
     border: 0.0625rem solid #ddd;
     padding: 1.25rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
     margin: 0.9375rem 0;
     max-width: 31.25rem;
 }
@@ -148,7 +203,7 @@ button {
 }
 
 button:hover {
-    background-color: #c76a28;
+    background-color: var(--primary-dark);
 }
 
 /* ===== Messaggi di errore ===== */
@@ -161,12 +216,12 @@ button:hover {
     margin: 0.9375rem 0;
 }
 
-/* ===== Sezione volontario/adottante: flexbox per allineare titolo e link ===== */
+/* ===== Sezione volontario/adottante ===== */
 .admin-section {
     background-color: var(--dark-color);
     color: white;
     padding: 1.25rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
     margin-top: 1.875rem;
 }
 
@@ -179,14 +234,18 @@ button:hover {
     color: white;
 }
 
-/* ===== Riga di azioni (Modifica/Elimina) con Flexbox ===== */
+/* ===== Riga di azioni: pulsanti divisi equamente con calc() (vedi slide "La funzione calc") ===== */
 .actions {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
     gap: 0.625rem;
     margin-top: 0.5rem;
+}
+
+.actions button,
+.actions a.button-like {
+    flex: 0 1 calc(50% - 0.3125rem);
+    text-align: center;
 }
 
 /* ===== Media query per schermi piccoli (vedi slide "CSS media query") ===== */
@@ -200,8 +259,8 @@ button:hover {
         align-items: flex-start;
     }
 
-    nav.main-nav a {
-        margin-bottom: 0.5rem;
+    .card-grid .card {
+        flex-basis: 100%;
     }
 
     form {

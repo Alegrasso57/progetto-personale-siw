@@ -15,13 +15,23 @@
     </nav>
 
     <div class="container">
-        <h1 th:text="${animale.nome}">Nome</h1>
-        <p th:text="'Specie: ' + ${animale.specie}">Specie</p>
-        <p th:text="'Razza: ' + ${animale.razza}">Razza</p>
-        <p th:text="'Età: ' + ${animale.eta}">Età</p>
-        <p th:text="'Sesso: ' + ${animale.sesso}">Sesso</p>
-        <p th:text="${animale.descrizione}">Descrizione</p>
-        <p th:text="'Stato: ' + ${animale.stato}">Stato</p>
+        <div class="card">
+            <span th:switch="${animale.stato.name()}">
+                <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
+                <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
+                <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
+            </span>
+            <h1 th:text="${animale.nome}">Nome</h1>
+            <p th:text="'Specie: ' + ${animale.specie}">Specie</p>
+            <p th:text="'Razza: ' + ${animale.razza}">Razza</p>
+            <p th:text="'Età: ' + ${animale.eta}">Età</p>
+            <p th:text="'Sesso: ' + ${animale.sesso}">Sesso</p>
+            <p th:text="${animale.descrizione}">Descrizione</p>
+
+            <div sec:authorize="hasAuthority('ADOTTANTE')" th:if="${animale.stato.name() == 'DISPONIBILE'}">
+                <a th:href="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}">Richiedi l'adozione</a>
+            </div>
+        </div>
 
         <h2>Turni programmati</h2>
         <div class="card" th:each="turno : ${turni}">
@@ -31,15 +41,20 @@
         <p th:if="${#lists.isEmpty(turni)}">Nessun turno programmato per questo animale.</p>
 
         <h2>Recensioni</h2>
+        <div sec:authorize="hasAuthority('ADOTTANTE')">
+            <a th:href="@{'/animali/' + ${animale.id} + '/recensioni/nuova'}">Scrivi una recensione</a>
+        </div>
         <div class="card" th:each="recensione : ${recensioni}">
             <p th:text="'Voto: ' + ${recensione.voto} + '/5'">Voto</p>
             <p th:text="${recensione.testo}">Testo</p>
+            <div class="actions" th:if="${#authentication.name == recensione.autore.username}">
+                <a class="button-like" th:href="@{'/recensioni/' + ${recensione.id} + '/modifica'}">Modifica</a>
+                <form th:action="@{'/recensioni/' + ${recensione.id} + '/elimina'}" method="post">
+                    <button type="submit">Elimina</button>
+                </form>
+            </div>
         </div>
         <p th:if="${#lists.isEmpty(recensioni)}">Ancora nessuna recensione.</p>
-
-        <div sec:authorize="hasAuthority('ADOTTANTE')">
-            <a th:href="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}">Richiedi l'adozione</a>
-        </div>
     </div>
 </body>
 </html>

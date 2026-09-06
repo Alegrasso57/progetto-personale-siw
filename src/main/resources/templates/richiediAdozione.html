@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Richiedi adozione</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
+
+    <div class="container">
+        <h1 th:text="'Richiedi l\'adozione di ' + ${animale.nome}">Richiedi adozione</h1>
+
+        <p th:if="${errore != null}" th:text="${errore}" class="errore">Messaggio di errore</p>
+
+        <form th:action="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}" method="post">
+            <label>Perché vuoi adottare questo animale:
+                <textarea name="motivazione" rows="4"></textarea>
+            </label>
+            <button type="submit">Invia richiesta</button>
+        </form>
+    </div>
+</body>
+</html>

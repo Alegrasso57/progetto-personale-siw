@@ -45,13 +45,19 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.GET,
                         "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
-                        "/animali", "/animali/**",
                         "/turni", "/volontari",
                         "/api/animali/**",
                         "/register", "/login", "/error")
                 .permitAll()
 
+                .requestMatchers(HttpMethod.GET, "/animali", "/animali/{id:[0-9]+}").permitAll()
+
                 .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll()
+
+                .requestMatchers("/animali/*/richiedi-adozione",
+                        "/le-mie-richieste", "/le-mie-richieste/**",
+                        "/animali/*/recensioni/**", "/recensioni/**")
+                .hasAuthority("ADOTTANTE")
 
                 .requestMatchers("/volontario/**").hasAuthority("VOLONTARIO")
 

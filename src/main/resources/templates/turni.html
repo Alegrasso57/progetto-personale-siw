@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Programmazione turni</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
+
+    <div class="container">
+        <h1>Programmazione turni</h1>
+
+        <form th:action="@{/turni}" method="get">
+            <label>Data:
+                <input type="date" name="data" th:value="${dataSelezionata}">
+            </label>
+            <button type="submit">Cerca</button>
+        </form>
+
+        <div class="card" th:each="turno : ${turnoList}">
+            <p th:text="${turno.data} + ' — ' + ${turno.oraInizio} + ' - ' + ${turno.oraFine}">Data e ora</p>
+            <p th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
+            <p th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
+        </div>
+
+        <p th:if="${#lists.isEmpty(turnoList)}">Nessun turno programmato per questa data.</p>
+    </div>
+</body>
+</html>
