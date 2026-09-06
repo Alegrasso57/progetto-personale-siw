@@ -17,6 +17,8 @@
     <div class="container">
         <h1>Animali disponibili per l'adozione</h1>
 
+        <p><a th:href="@{/animali/cerca}">Prova la ricerca interattiva per specie</a></p>
+
         <div class="card-grid">
             <div class="card" th:each="animale : ${animaleList}">
                 <h3><a th:href="@{'/animali/' + ${animale.id}}" th:text="${animale.nome}">Nome</a></h3>

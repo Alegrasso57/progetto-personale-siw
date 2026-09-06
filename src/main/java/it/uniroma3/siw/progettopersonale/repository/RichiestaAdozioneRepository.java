@@ -14,6 +14,8 @@ public interface RichiestaAdozioneRepository extends JpaRepository<RichiestaAdoz
 
     List<RichiestaAdozione> findByAdottante(Utente adottante);
 
+    List<RichiestaAdozione> findByStato(StatoRichiesta stato);
+
     List<RichiestaAdozione> findByAnimaleAndStato(Animale animale, StatoRichiesta stato);
 
     Optional<RichiestaAdozione> findByAdottanteAndAnimaleAndStato(Utente adottante, Animale animale, StatoRichiesta stato);

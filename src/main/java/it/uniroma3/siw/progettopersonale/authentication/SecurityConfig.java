@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,
                         "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
                         "/turni", "/volontari",
+                        "/animali/cerca",
                         "/api/animali/**",
                         "/register", "/login", "/error")
                 .permitAll()

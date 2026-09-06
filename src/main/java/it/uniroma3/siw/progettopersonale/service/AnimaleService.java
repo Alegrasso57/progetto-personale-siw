@@ -39,6 +39,11 @@ public class AnimaleService {
     }
 
     @Transactional(readOnly = true)
+    public List<Animale> findDisponibiliPerSpecie(String specie) {
+        return animaleRepository.findBySpecieIgnoreCaseAndStato(specie, StatoAnimale.DISPONIBILE);
+    }
+
+    @Transactional(readOnly = true)
     public Animale findById(Long id) {
         return animaleRepository.findById(id).orElse(null);
     }
