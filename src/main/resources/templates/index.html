@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <title>Rifugio Amico</title>
 </head>
@@ -15,14 +18,22 @@
     </nav>
 
     <div class="container">
-        <h1>Benvenuto al rifugio</h1>
+        <section class="hero">
+            <div class="hero-icon">
+                <img th:src="@{/images/rifugio-hero.png}" alt="Casa del rifugio con un cane" class="hero-img">
+            </div>
 
-        <h2>Esplora</h2>
-        <ul class="link-list">
-            <li><a th:href="@{/animali}">Animali in adozione</a></li>
-            <li><a th:href="@{/turni}">Programmazione turni</a></li>
-            <li><a th:href="@{/volontari}">I nostri volontari</a></li>
-        </ul>
+            <div class="hero-content">
+                <h1>Benvenuto al rifugio</h1>
+                <p>Rifugio Amico si prende cura di cani, gatti e altri animali in cerca di una famiglia. Scopri chi aspetta di essere adottato, segui la programmazione dei turni e conosci i volontari del centro.</p>
+
+                <ul class="link-list">
+                    <li><a th:href="@{/animali}">Animali in adozione</a></li>
+                    <li><a th:href="@{/turni}">Programmazione turni</a></li>
+                    <li><a th:href="@{/volontari}">I nostri volontari</a></li>
+                </ul>
+            </div>
+        </section>
 
         <div sec:authorize="!isAuthenticated()">
             <p><a th:href="@{/login}">Accedi</a> o <a th:href="@{/register}">registrati</a> per adottare o lasciare recensioni.</p>

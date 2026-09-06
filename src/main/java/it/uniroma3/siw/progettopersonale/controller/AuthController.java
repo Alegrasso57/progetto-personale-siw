@@ -34,9 +34,10 @@ public class AuthController {
                                   @ModelAttribute("nome") String nome,
                                   @ModelAttribute("cognome") String cognome,
                                   @ModelAttribute("ruolo") Ruolo ruolo,
+                                  @ModelAttribute("codiceVolontario") String codiceVolontario,
                                   Model model) {
         try {
-            utenteService.registra(username, password, nome, cognome, ruolo);
+            utenteService.registra(username, password, nome, cognome, ruolo, codiceVolontario);
             return "redirect:/login";
         } catch (IllegalStateException e) {
             model.addAttribute("errore", e.getMessage());
