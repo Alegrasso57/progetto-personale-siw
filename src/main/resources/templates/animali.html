@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Animali in adozione</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
+
+    <div class="container">
+        <h1>Animali disponibili per l'adozione</h1>
+
+        <div class="card" th:each="animale : ${animaleList}">
+            <h3><a th:href="@{'/animali/' + ${animale.id}}" th:text="${animale.nome}">Nome</a></h3>
+            <p th:text="${animale.specie} + ' - ' + ${animale.razza}">Specie - Razza</p>
+            <p th:text="'Età: ' + ${animale.eta}">Età</p>
+        </div>
+
+        <p th:if="${#lists.isEmpty(animaleList)}">Al momento non ci sono animali disponibili.</p>
+    </div>
+</body>
+</html>

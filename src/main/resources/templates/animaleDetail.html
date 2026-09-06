@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title th:text="${animale.nome}">Animale</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
+
+    <div class="container">
+        <h1 th:text="${animale.nome}">Nome</h1>
+        <p th:text="'Specie: ' + ${animale.specie}">Specie</p>
+        <p th:text="'Razza: ' + ${animale.razza}">Razza</p>
+        <p th:text="'Età: ' + ${animale.eta}">Età</p>
+        <p th:text="'Sesso: ' + ${animale.sesso}">Sesso</p>
+        <p th:text="${animale.descrizione}">Descrizione</p>
+        <p th:text="'Stato: ' + ${animale.stato}">Stato</p>
+
+        <h2>Turni programmati</h2>
+        <div class="card" th:each="turno : ${turni}">
+            <p th:text="${turno.data} + ' ' + ${turno.oraInizio} + ' - ' + ${turno.oraFine}">Data e ora</p>
+            <p th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
+        </div>
+        <p th:if="${#lists.isEmpty(turni)}">Nessun turno programmato per questo animale.</p>
+
+        <h2>Recensioni</h2>
+        <div class="card" th:each="recensione : ${recensioni}">
+            <p th:text="'Voto: ' + ${recensione.voto} + '/5'">Voto</p>
+            <p th:text="${recensione.testo}">Testo</p>
+        </div>
+        <p th:if="${#lists.isEmpty(recensioni)}">Ancora nessuna recensione.</p>
+
+        <div sec:authorize="hasAuthority('ADOTTANTE')">
+            <a th:href="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}">Richiedi l'adozione</a>
+        </div>
+    </div>
+</body>
+</html>
