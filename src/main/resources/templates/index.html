@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Rifugio Amico</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
+
+    <div class="container">
+        <h1>Benvenuto al rifugio</h1>
+
+        <h2>Esplora</h2>
+        <ul class="link-list">
+            <li><a th:href="@{/animali}">Animali in adozione</a></li>
+            <li><a th:href="@{/turni}">Programmazione turni</a></li>
+            <li><a th:href="@{/volontari}">I nostri volontari</a></li>
+        </ul>
+
+        <div sec:authorize="!isAuthenticated()">
+            <p><a th:href="@{/login}">Accedi</a> o <a th:href="@{/register}">registrati</a> per adottare o lasciare recensioni.</p>
+        </div>
+
+        <div sec:authorize="isAuthenticated()">
+            <p>Sei connesso come <span sec:authentication="name">username</span>.</p>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit">Esci (logout)</button>
+            </form>
+        </div>
+
+        <div class="admin-section" sec:authorize="hasAuthority('ADOTTANTE')">
+            <h2>Area adottante</h2>
+            <ul class="link-list">
+                <li><a th:href="@{/le-mie-richieste}">Le mie richieste di adozione</a></li>
+            </ul>
+        </div>
+
+        <div class="admin-section" sec:authorize="hasAuthority('VOLONTARIO')">
+            <h2>Area volontario</h2>
+            <ul class="link-list">
+                <li><a th:href="@{/volontario/animali}">Gestione animali</a></li>
+                <li><a th:href="@{/volontario/turni}">Gestione turni</a></li>
+                <li><a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

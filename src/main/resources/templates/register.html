@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Registrati</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+    </nav>
+
+    <div class="container">
+        <h1>Crea un account</h1>
+
+        <p th:if="${errore != null}" th:text="${errore}" class="errore">Messaggio di errore</p>
+
+        <form th:action="@{/register}" method="post">
+            <label>Username: <input type="text" name="username"></label>
+            <label>Password: <input type="password" name="password"></label>
+            <label>Nome: <input type="text" name="nome"></label>
+            <label>Cognome: <input type="text" name="cognome"></label>
+            <label>Registrati come:
+                <select name="ruolo">
+                    <option value="ADOTTANTE">Adottante (voglio adottare un animale)</option>
+                    <option value="VOLONTARIO">Volontario (lavoro per il centro)</option>
+                </select>
+            </label>
+            <button type="submit">Registrati</button>
+        </form>
+
+        <p><a th:href="@{/login}">Hai già un account? Accedi</a></p>
+    </div>
+</body>
+</html>
