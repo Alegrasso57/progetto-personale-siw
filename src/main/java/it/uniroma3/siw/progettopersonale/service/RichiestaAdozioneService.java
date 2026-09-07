@@ -1,6 +1,7 @@
 package it.uniroma3.siw.progettopersonale.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,9 +10,11 @@ import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.Ruolo;
 import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
 import it.uniroma3.siw.progettopersonale.model.StatoRichiesta;
+import it.uniroma3.siw.progettopersonale.model.Turno;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 import it.uniroma3.siw.progettopersonale.repository.AnimaleRepository;
 import it.uniroma3.siw.progettopersonale.repository.RichiestaAdozioneRepository;
+import it.uniroma3.siw.progettopersonale.repository.TurnoRepository;
 import it.uniroma3.siw.progettopersonale.repository.UtenteRepository;
 
 @Service
@@ -20,13 +23,16 @@ public class RichiestaAdozioneService {
     private final RichiestaAdozioneRepository richiestaAdozioneRepository;
     private final AnimaleRepository animaleRepository;
     private final UtenteRepository utenteRepository;
+    private final TurnoRepository turnoRepository;
 
     public RichiestaAdozioneService(RichiestaAdozioneRepository richiestaAdozioneRepository,
                                      AnimaleRepository animaleRepository,
-                                     UtenteRepository utenteRepository) {
+                                     UtenteRepository utenteRepository,
+                                     TurnoRepository turnoRepository) {
         this.richiestaAdozioneRepository = richiestaAdozioneRepository;
         this.animaleRepository = animaleRepository;
         this.utenteRepository = utenteRepository;
+        this.turnoRepository = turnoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -90,7 +96,8 @@ public class RichiestaAdozioneService {
     }
 
     @Transactional
-    public RichiestaAdozione creaRichiesta(Long animaleId, Long adottanteId, String motivazione) {
+    public RichiestaAdozione creaRichiesta(Long animaleId, Long adottanteId, String motivazione,
+                                            Long volontarioPreferitoId, List<Long> turnoIdsSelezionati) {
 
         Animale animale = animaleRepository.findById(animaleId).orElse(null);
         if (animale == null) {
@@ -115,14 +122,66 @@ public class RichiestaAdozioneService {
             throw new IllegalStateException("Hai già una richiesta in attesa per questo animale");
         }
 
+        Utente volontarioPreferito = null;
+        if (volontarioPreferitoId != null) {
+            volontarioPreferito = utenteRepository.findById(volontarioPreferitoId).orElse(null);
+            if (volontarioPreferito == null) {
+                throw new IllegalArgumentException("Volontario preferito non trovato");
+            }
+            if (volontarioPreferito.getRuolo() != Ruolo.VOLONTARIO) {
+                throw new IllegalStateException("Il volontario preferito indicato non è un volontario");
+            }
+        }
+
+        // Ricontrolla al momento del salvataggio che i turni scelti siano ancora
+        // liberi (non fidandosi di quanto visto dall'adottante quando ha caricato
+        // la pagina: nel frattempo qualcun altro potrebbe averli prenotati).
+        List<Turno> turniDaPrenotare = new ArrayList<>();
+        if (turnoIdsSelezionati != null) {
+            LocalDate oggi = LocalDate.now();
+            for (Long turnoId : turnoIdsSelezionati) {
+                Turno turno = turnoRepository.findById(turnoId).orElse(null);
+                if (turno == null) {
+                    throw new IllegalArgumentException("Uno dei turni scelti non esiste più");
+                }
+                if (turno.getAnimale() != null || turno.getRichiestaAdozione() != null) {
+                    throw new IllegalStateException(
+                            "Uno dei turni scelti non è più disponibile: aggiorna la pagina e riprova");
+                }
+                if (turno.getData().isBefore(oggi)) {
+                    throw new IllegalStateException("Uno dei turni scelti è ormai passato: aggiorna la pagina e riprova");
+                }
+                turniDaPrenotare.add(turno);
+            }
+        }
+
         RichiestaAdozione richiesta = new RichiestaAdozione();
         richiesta.setAnimale(animale);
         richiesta.setAdottante(adottante);
         richiesta.setMotivazione(motivazione);
         richiesta.setDataRichiesta(LocalDate.now());
         richiesta.setStato(StatoRichiesta.IN_ATTESA);
+        richiesta.setVolontarioPreferito(volontarioPreferito);
+        richiesta = richiestaAdozioneRepository.save(richiesta);
 
-        return richiestaAdozioneRepository.save(richiesta);
+        for (Turno turno : turniDaPrenotare) {
+            turno.setAnimale(animale);
+            turno.setRichiestaAdozione(richiesta);
+            turnoRepository.save(turno);
+        }
+
+        return richiesta;
+    }
+
+    /** Libera i turni prenotati per una richiesta (usata quando la richiesta viene
+     *  rifiutata o cancellata), cosi' tornano disponibili per altri adottanti. */
+    @Transactional
+    public void liberaTurniPrenotati(RichiestaAdozione richiesta) {
+        for (Turno turno : turnoRepository.findByRichiestaAdozione(richiesta)) {
+            turno.setAnimale(null);
+            turno.setRichiestaAdozione(null);
+            turnoRepository.save(turno);
+        }
     }
 
     /**
@@ -130,7 +189,8 @@ public class RichiestaAdozioneService {
      * Coinvolge due entità e piu' repository in un'unica operazione atomica:
      * 1) la richiesta approvata passa a APPROVATA
      * 2) l'animale passa ad ADOTTATO
-     * 3) tutte le altre richieste IN_ATTESA per lo stesso animale vengono rifiutate automaticamente
+     * 3) tutte le altre richieste IN_ATTESA per lo stesso animale vengono rifiutate
+     *    automaticamente, liberando i turni che avevano eventualmente prenotato
      * Se un passaggio fallisse a metà, @Transactional garantisce il rollback di tutto.
      */
     @Transactional
@@ -158,6 +218,7 @@ public class RichiestaAdozioneService {
         for (RichiestaAdozione altra : altreRichieste) {
             if (!altra.getId().equals(richiesta.getId())) {
                 altra.setStato(StatoRichiesta.RIFIUTATA);
+                liberaTurniPrenotati(altra);
             }
         }
 
@@ -176,6 +237,7 @@ public class RichiestaAdozioneService {
         }
 
         richiesta.setStato(StatoRichiesta.RIFIUTATA);
+        liberaTurniPrenotati(richiesta);
         return richiesta;
     }
 
@@ -193,6 +255,7 @@ public class RichiestaAdozioneService {
             throw new IllegalStateException("Non puoi cancellare una richiesta di un altro utente");
         }
 
+        liberaTurniPrenotati(richiesta);
         richiestaAdozioneRepository.deleteById(richiestaId);
     }
 }

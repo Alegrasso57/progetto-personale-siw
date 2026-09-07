@@ -170,6 +170,45 @@ nav.main-nav a:hover {
     color: var(--color-accent);
 }
 
+/* ===== Sottomenu a comparsa (Animali/Turni), visibile solo ai volontari
+   autenticati: position:relative sul contenitore, position:absolute sul
+   menu, mostrato con :hover (slide "position: relative/absolute",
+   "Pseudo classi CSS") ===== */
+.nav-item-dropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+.nav-dropdown-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card-hover);
+    padding: 0.4rem 0;
+    min-width: 14rem;
+    z-index: 20;
+}
+
+.nav-item-dropdown:hover .nav-dropdown-menu {
+    display: flex;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 0.65rem 1.25rem;
+    white-space: nowrap;
+}
+
+.nav-dropdown-menu a:hover {
+    background-color: var(--color-bg);
+}
+
 /* ===== Liste di navigazione semplici ===== */
 ul.link-list {
     list-style: none;
@@ -194,7 +233,8 @@ ul.link-list li:last-child {
     gap: 1.5rem;
 }
 
-.card-grid .card {
+.card-grid .card,
+.card-grid .animal-card {
     flex: 1 1 18rem;
 }
 
@@ -231,9 +271,12 @@ ul.link-list li:last-child {
     border-left: 0.3rem solid var(--color-primary);
 }
 
-.animal-card:hover {
-    box-shadow: var(--shadow-card-hover);
-    transform: translateY(-0.15rem);
+/* Nessun effetto hover: ne' nella griglia pubblica ne' in gestione volontario
+   (richiesta esplicita: le card non devono "sollevarsi" al passaggio del mouse) */
+
+/* Usata in volontario/animali.html: solo piu' spazio tra le card */
+.animal-card-manage {
+    margin-bottom: 1.5rem;
 }
 
 .animal-card h3 {
@@ -303,33 +346,33 @@ ul.link-list li:last-child {
     margin: 0.25rem 0 0;
 }
 
-/* ===== Card volontario — lista semplice ===== */
+/* ===== Card volontario — tinta piena + fascia laterale, coerente con
+   .animal-card/.turno-card; nessun effetto hover sul bordo (richiesta
+   esplicita: il nome non e' cliccabile) ===== */
 .volontario-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
 }
 
 .volontario-list-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    background-color: var(--color-surface);
+    gap: 1.1rem;
+    padding: 1.15rem 1.5rem;
+    background-color: #eef1ea;
     border: 0.0625rem solid var(--color-border);
+    border-left: 0.3rem solid var(--color-primary);
     border-radius: var(--radius-md);
-    margin-bottom: 0.75rem;
     box-shadow: var(--shadow-card);
-    transition: border-color 0.2s ease;
-}
-
-.volontario-list-item:hover {
-    border-color: var(--color-primary);
 }
 
 .volontario-avatar {
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 3.25rem;
+    height: 3.25rem;
     border-radius: 50%;
     background-color: var(--color-primary);
     color: white;
@@ -337,15 +380,29 @@ ul.link-list li:last-child {
     align-items: center;
     justify-content: center;
     font-family: var(--font-heading);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     flex-shrink: 0;
+    box-shadow: 0 0 0 0.2rem var(--color-surface);
+}
+
+.volontario-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
 }
 
 .volontario-nome {
     font-weight: 600;
     font-size: 1.05rem;
     color: var(--color-text);
+}
+
+.volontario-ruolo {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* ===== Barra di ricerca ===== */
@@ -360,6 +417,7 @@ ul.link-list li:last-child {
 .search-bar input[type="text"],
 .search-bar input[type="date"] {
     flex: 1;
+    min-width: 0;
     font-family: var(--font-body);
     padding: 0.6rem 1rem;
     border: 0.0625rem solid var(--color-border);
@@ -383,6 +441,61 @@ ul.link-list li:last-child {
     padding: 0.6rem 1.25rem;
     font-size: 0.875rem;
     white-space: nowrap;
+}
+
+/* ===== Intestazione di pagina: titolo sempre centrato con una griglia a
+   3 colonne (1fr auto 1fr), lasciando una colonna laterale per un elemento
+   come la barra di ricerca o il bottone "+ Nuovo" (slide "CSS Grid" /
+   "Flexbox: due colonne") ===== */
+.page-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.page-header-title {
+    grid-column: 2;
+    text-align: center;
+    margin: 0;
+}
+
+.page-header-end {
+    grid-column: 3;
+    justify-self: end;
+}
+
+.page-header .btn-nuovo {
+    margin-bottom: 0;
+}
+
+/* Variante per le pagine dove titolo e barra di ricerca stanno insieme,
+   centrati nello stesso spazio (es. /volontari) */
+.page-header-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Barra di ricerca ridotta, usata nelle intestazioni di pagina */
+.search-bar-compact {
+    max-width: 19rem;
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+}
+
+.search-bar-compact input[type="text"] {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+.search-bar-compact button {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
 }
 
 /* ===== Badge di stato: position:absolute rispetto alla card (slide "position: absolute") ===== */
@@ -481,6 +594,60 @@ button:hover {
     background-color: var(--color-primary-dark);
 }
 
+/* ===== Form della richiesta di adozione: piu' largo del form standard, per
+   ospitare la tabella del calendario (14 giorni x 10 fasce orarie) ===== */
+.form-richiesta-adozione {
+    max-width: 60rem;
+}
+
+/* ===== Elenco dei turni disponibili dichiarati dai volontari, tra cui l'adottante
+   sceglie quelli da prenotare per la visita ===== */
+.slot-legenda {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    max-width: 40rem;
+    margin: 0 0 1rem;
+}
+
+.slot-calendar-wrap {
+    margin: 0 0 1.5rem;
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    padding: 0.5rem 1rem;
+}
+
+.slot-turni-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.slot-turno-item {
+    border-bottom: 0.0625rem solid var(--color-border);
+    padding: 0.6rem 0;
+}
+
+.slot-turno-item:last-child {
+    border-bottom: none;
+}
+
+.slot-turno-item label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.slot-turno-item input[type="checkbox"] {
+    width: 1.15rem;
+    height: 1.15rem;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
 /* ===== Form inline: azzera stili del form globale (usato per i bottoni Elimina inline) ===== */
 form.form-inline {
     background-color: transparent;
@@ -570,6 +737,7 @@ form.form-inline {
 /* ===== Bottoni azione uniformi (Modifica / Elimina) ===== */
 .btn-action {
     display: inline-block;
+    margin: 0;
     padding: 0.5rem 1.1rem;
     border-radius: var(--radius-sm);
     font-family: var(--font-body);
@@ -584,25 +752,39 @@ form.form-inline {
 }
 
 .btn-modifica {
-    background-color: transparent;
-    color: var(--color-accent-dark);
+    background-color: var(--color-accent-dark);
+    color: white;
     border: 0.0625rem solid var(--color-accent-dark);
 }
 
 .btn-modifica:hover {
-    background-color: var(--color-accent-dark);
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
     color: white;
     text-decoration: none;
 }
 
+/* .btn-modifica e' usato anche su un tag <a>: a:link/a:hover (slide
+   "Pseudo classi CSS") hanno specificita' piu' alta di una singola classe
+   (una classe piu' un elemento batte una classe da sola), quindi senza
+   queste regole il testo tornerebbe al colore dei link invece di restare
+   bianco. a.btn-modifica ha specificita' maggiore e vince sempre. */
+a.btn-modifica:link,
+a.btn-modifica:visited,
+a.btn-modifica:hover,
+a.btn-modifica:active {
+    color: white;
+}
+
 .btn-elimina {
-    background-color: transparent;
-    color: #a34328;
-    border: 0.0625rem solid #a34328;
+    background-color: var(--color-primary);
+    color: white;
+    border: 0.0625rem solid var(--color-primary);
 }
 
 .btn-elimina:hover {
-    background-color: #a34328;
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
     color: white;
 }
 
@@ -640,6 +822,16 @@ a.button-like:hover {
     background-color: var(--color-primary-dark);
     color: white;
     text-decoration: none;
+}
+
+/* Stesso problema di specificita' di .btn-modifica: senza queste regole
+   a:link/a:hover sovrascrivono il colore bianco del testo su
+   <a class="btn-nuovo">. */
+a.btn-nuovo:link,
+a.btn-nuovo:visited,
+a.btn-nuovo:hover,
+a.btn-nuovo:active {
+    color: white;
 }
 
 /* ===== Pagina N+1 Admin ===== */
@@ -704,7 +896,8 @@ a.button-like:hover {
         padding: 1rem;
     }
 
-    .card-grid .card {
+    .card-grid .card,
+    .card-grid .animal-card {
         flex-basis: 100%;
     }
 
@@ -733,5 +926,26 @@ a.button-like:hover {
     .search-bar input[type="text"],
     .search-bar input[type="date"] {
         width: 100%;
+    }
+
+    .page-header {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .page-header-title,
+    .page-header-end {
+        grid-column: 1;
+        justify-self: center;
+    }
+
+    .search-bar-compact {
+        max-width: 100%;
+    }
+
+    .nav-dropdown-menu {
+        left: 0;
+        transform: none;
+        min-width: 12rem;
     }
 }

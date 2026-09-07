@@ -46,8 +46,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,
                         "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
                         "/turni", "/volontari",
-                        "/animali/cerca",
-                        "/api/animali/**",
                         "/register", "/login", "/error")
                 .permitAll()
 
@@ -60,7 +58,7 @@ public class SecurityConfig {
                         "/animali/*/recensioni/**", "/recensioni/**")
                 .hasAuthority("ADOTTANTE")
 
-                .requestMatchers("/volontario/**").hasAuthority("VOLONTARIO")
+                .requestMatchers("/volontario/**", "/admin/**").hasAuthority("VOLONTARIO")
 
                 .anyRequest().authenticated())
 

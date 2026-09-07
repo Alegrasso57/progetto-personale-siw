@@ -33,6 +33,10 @@ public class Turno {
     @ManyToOne
     private Animale animale;
 
+    /** Richiesta di adozione per cui questo turno e' stato prenotato dall'adottante; nullo finche' il turno e' libero. */
+    @ManyToOne
+    private RichiestaAdozione richiestaAdozione;
+
     public Turno() {
     }
 
@@ -90,5 +94,13 @@ public class Turno {
 
     public void setAnimale(Animale animale) {
         this.animale = animale;
+    }
+
+    public RichiestaAdozione getRichiestaAdozione() {
+        return richiestaAdozione;
+    }
+
+    public void setRichiestaAdozione(RichiestaAdozione richiestaAdozione) {
+        this.richiestaAdozione = richiestaAdozione;
     }
 }

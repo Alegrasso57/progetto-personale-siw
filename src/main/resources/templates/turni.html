@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,8 +13,15 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
@@ -35,8 +42,9 @@
                th:text="'Data : ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')}">Data : GG/MM/AAAA</p>
             <p class="turno-ora"
                th:text="'Fascia oraria del turno : ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Fascia oraria</p>
-            <p class="turno-info"
+            <p class="turno-info" th:if="${turno.animale != null}"
                th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
+            <p class="turno-info" th:unless="${turno.animale != null}">Turno disponibile: nessuna visita ancora prenotata.</p>
             <p class="turno-info"
                th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
         </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,15 +12,23 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
     <div class="container">
-        <h1>Gestione turni</h1>
-
-        <a th:href="@{/volontario/turni/nuovo}" class="btn-nuovo">+ Nuovo turno</a>
+        <div class="page-header">
+            <h1 class="page-header-title">Gestione turni</h1>
+            <a th:href="@{/volontario/turni/nuovo}" class="btn-nuovo page-header-end">+ Nuovo turno</a>
+        </div>
 
         <!-- Barra ricerca per data -->
         <form th:action="@{/volontario/turni}" method="get" class="search-bar" id="form-ricerca-turni-vol">
@@ -36,11 +44,13 @@
                th:text="'Data : ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')}">Data</p>
             <p class="turno-ora"
                th:text="'Fascia oraria del turno : ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Orario</p>
-            <p class="turno-info" th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
-            <p class="turno-info" th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
+            <p class="turno-info" th:if="${turno.animale != null}" th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
+            <p class="turno-info" th:unless="${turno.animale != null}">Turno disponibile: nessuna visita ancora prenotata.</p>
             <p class="turno-info" th:if="${turno.note != null and !turno.note.isEmpty()}" th:text="'Note: ' + ${turno.note}">Note</p>
 
             <div class="actions">
+                <a class="btn-action btn-modifica"
+                   th:href="@{'/volontario/turni/' + ${turno.id} + '/modifica'}">Modifica</a>
                 <form th:action="@{'/volontario/turni/' + ${turno.id} + '/elimina'}"
                       method="post" class="form-inline">
                     <button type="submit" class="btn-action btn-elimina"

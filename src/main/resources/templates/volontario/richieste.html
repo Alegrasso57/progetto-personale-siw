@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,8 +12,15 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
@@ -38,9 +45,21 @@
 
             <p th:text="'Animale: ' + ${richiesta.animale.nome}">Animale</p>
             <p th:text="'Adottante: ' + ${richiesta.adottante.nome} + ' ' + ${richiesta.adottante.cognome}">Adottante</p>
-            <p th:text="'Data richiesta: ' + ${richiesta.dataRichiesta}">Data</p>
+            <p th:text="'Data richiesta: ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
             <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
-               th:text="${richiesta.motivazione}">Motivazione</p>
+               th:text="'Motivazione della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
+
+            <p th:if="${richiesta.volontarioPreferito != null}"
+               th:text="'Volontario preferito: ' + ${richiesta.volontarioPreferito.nome} + ' ' + ${richiesta.volontarioPreferito.cognome}">Volontario preferito</p>
+            <div th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
+                <p>Orari proposti per la visita:</p>
+                <ul class="link-list">
+                    <li th:each="turno : ${richiesta.turniPrenotati}"
+                        th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">
+                        Turno
+                    </li>
+                </ul>
+            </div>
 
             <div class="actions" th:if="${richiesta.stato.name() == 'IN_ATTESA'}">
                 <form th:action="@{'/volontario/richieste/' + ${richiesta.id} + '/approva'}"

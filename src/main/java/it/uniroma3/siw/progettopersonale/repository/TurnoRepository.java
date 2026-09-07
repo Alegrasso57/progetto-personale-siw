@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import it.uniroma3.siw.progettopersonale.model.Animale;
+import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.Turno;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 
@@ -16,4 +17,9 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByDataOrderByOraInizioAsc(LocalDate data);
 
     List<Turno> findByVolontarioAndData(Utente volontario, LocalDate data);
+
+    /** Turni dichiarati disponibili dai volontari e non ancora legati a nessun animale/richiesta. */
+    List<Turno> findByAnimaleIsNullOrderByDataAscOraInizioAsc();
+
+    List<Turno> findByRichiestaAdozione(RichiestaAdozione richiestaAdozione);
 }

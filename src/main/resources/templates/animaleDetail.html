@@ -12,8 +12,15 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
@@ -38,26 +45,11 @@
 
         <h2>Turni programmati</h2>
         <div class="card" th:each="turno : ${turni}">
-            <p th:text="${turno.data} + ' ' + ${turno.oraInizio} + ' - ' + ${turno.oraFine}">Data e ora</p>
+            <p th:text="'Data: ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')} + '  Fascia oraria : ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Data e ora</p>
             <p th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
         </div>
         <p th:if="${#lists.isEmpty(turni)}">Nessun turno programmato per questo animale.</p>
 
-        <h2>Recensioni</h2>
-        <div sec:authorize="hasAuthority('ADOTTANTE')">
-            <a th:href="@{'/animali/' + ${animale.id} + '/recensioni/nuova'}">Scrivi una recensione</a>
-        </div>
-        <div class="card" th:each="recensione : ${recensioni}">
-            <p th:text="'Voto: ' + ${recensione.voto} + '/5'">Voto</p>
-            <p th:text="${recensione.testo}">Testo</p>
-            <div class="actions" th:if="${#authentication.name == recensione.autore.username}">
-                <a class="button-like" th:href="@{'/recensioni/' + ${recensione.id} + '/modifica'}">Modifica</a>
-                <form th:action="@{'/recensioni/' + ${recensione.id} + '/elimina'}" method="post">
-                    <button type="submit">Elimina</button>
-                </form>
-            </div>
-        </div>
-        <p th:if="${#lists.isEmpty(recensioni)}">Ancora nessuna recensione.</p>
     </div>
 </body>
 </html>

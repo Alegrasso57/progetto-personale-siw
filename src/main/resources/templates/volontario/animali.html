@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,16 +12,23 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
     <div class="container">
-        <h1>Gestione animali</h1>
-
-        <!-- Link Nuovo animale con stile btn-nuovo (stesso colore del testo nella nav) -->
-        <a th:href="@{/volontario/animali/nuovo}" class="btn-nuovo">+ Nuovo animale</a>
+        <div class="page-header">
+            <h1 class="page-header-title">Gestione animali</h1>
+            <a th:href="@{/volontario/animali/nuovo}" class="btn-nuovo page-header-end">+ Nuovo animale</a>
+        </div>
 
         <!-- Barra di ricerca server-side -->
         <form th:action="@{/volontario/animali}" method="get" class="search-bar" id="form-ricerca-animali-vol">
@@ -32,8 +39,8 @@
             <button type="submit">Cerca</button>
         </form>
 
-        <!-- Lista animali -->
-        <div class="animal-card" th:each="animale : ${animaleList}">
+        <!-- Lista animali: più spazio tra le card, nessun ingrandimento in hover -->
+        <div class="animal-card animal-card-manage" th:each="animale : ${animaleList}">
             <!-- Badge stato -->
             <span th:switch="${animale.stato.name()}">
                 <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>

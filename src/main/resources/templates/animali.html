@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,24 +13,31 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
     <div class="container">
-        <h1>Animali disponibili per l'adozione</h1>
+        <div class="page-header">
+            <h1 class="page-header-title">Animali disponibili per l'adozione</h1>
 
-        <!-- Barra di ricerca server-side -->
-        <form th:action="@{/animali}" method="get" class="search-bar" id="form-ricerca-animali">
-            <input type="text" name="cerca" id="cerca-animali"
-                   th:value="${cerca}"
-                   placeholder="Cerca per nome o specie…"
-                   aria-label="Cerca animale">
-            <button type="submit">Cerca</button>
-        </form>
-
-        <p><a th:href="@{/animali/cerca}">🔍 Prova la ricerca interattiva avanzata per specie (React)</a></p>
+            <!-- Barra di ricerca ridotta, spostata in alto a destra -->
+            <form th:action="@{/animali}" method="get" class="search-bar search-bar-compact page-header-end" id="form-ricerca-animali">
+                <input type="text" name="cerca" id="cerca-animali"
+                       th:value="${cerca}"
+                       placeholder="Cerca…"
+                       aria-label="Cerca animale">
+                <button type="submit">Cerca</button>
+            </form>
+        </div>
 
         <div class="card-grid">
             <div class="animal-card" th:each="animale : ${animaleList}">

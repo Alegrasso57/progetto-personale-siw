@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,8 +12,15 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
@@ -22,10 +29,42 @@
 
         <p th:if="${errore != null}" th:text="${errore}" class="errore">Messaggio di errore</p>
 
-        <form th:action="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}" method="post">
+        <form th:action="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}" method="post" class="form-richiesta-adozione">
             <label>Perché vuoi adottare questo animale:
                 <textarea name="motivazione" rows="4"></textarea>
             </label>
+
+            <label>Preferenza volontario per la visita (facoltativo):
+                <select name="volontarioPreferitoId">
+                    <option value="">Nessuna preferenza</option>
+                    <option th:each="volontario : ${volontari}"
+                            th:value="${volontario.id}"
+                            th:text="${volontario.nome} + ' ' + ${volontario.cognome}">
+                        Volontario
+                    </option>
+                </select>
+            </label>
+
+            <h2>Scegli uno o più turni per la visita (facoltativo)</h2>
+            <p class="slot-legenda">
+                Questi sono gli orari che i volontari hanno dichiarato disponibili. Seleziona uno o più
+                turni: una volta prenotato da te, un turno non sarà più visibile ad altri adottanti.
+            </p>
+
+            <div class="slot-calendar-wrap">
+                <p th:if="${#lists.isEmpty(turniDisponibili)}">Al momento nessun volontario ha dichiarato turni disponibili.</p>
+                <ul class="slot-turni-list" th:unless="${#lists.isEmpty(turniDisponibili)}">
+                    <li th:each="turno : ${turniDisponibili}" class="slot-turno-item">
+                        <label>
+                            <input type="checkbox" name="turnoId" th:value="${turno.id}">
+                            <span th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')}">gg/mm/aaaa</span>
+                            <span th:text="${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">08:00 - 09:00</span>
+                            <span th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+
             <button type="submit">Invia richiesta</button>
         </form>
     </div>

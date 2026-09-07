@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,30 +13,42 @@
 <body>
     <nav class="main-nav">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/animali}">Animali</a>
-        <a th:href="@{/turni}">Turni</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
     <div class="container">
-        <h1>I nostri volontari</h1>
+        <div class="page-header-center">
+            <h1 class="page-header-title">I nostri volontari</h1>
 
-        <!-- Barra di ricerca server-side -->
-        <form th:action="@{/volontari}" method="get" class="search-bar" id="form-ricerca-volontari">
-            <input type="text" name="cerca" id="cerca-volontari"
-                   th:value="${cerca}"
-                   placeholder="Cerca per nome o cognome…"
-                   aria-label="Cerca volontario">
-            <button type="submit">Cerca</button>
-        </form>
+            <!-- Barra di ricerca centrata insieme al titolo -->
+            <form th:action="@{/volontari}" method="get" class="search-bar search-bar-compact" id="form-ricerca-volontari">
+                <input type="text" name="cerca" id="cerca-volontari"
+                       th:value="${cerca}"
+                       placeholder="Cerca per nome o cognome…"
+                       aria-label="Cerca volontario">
+                <button type="submit">Cerca</button>
+            </form>
+        </div>
 
-        <!-- Lista semplice senza hover-ingrandimento -->
+        <!-- Lista senza hover-ingrandimento, impaginazione più ricca -->
         <ul class="volontario-list" th:if="${!#lists.isEmpty(volontarioList)}">
             <li class="volontario-list-item" th:each="volontario : ${volontarioList}">
                 <div class="volontario-avatar"
                      th:text="${#strings.substring(volontario.nome,0,1) + #strings.substring(volontario.cognome,0,1)}">AB</div>
-                <span class="volontario-nome"
-                      th:text="${volontario.nome} + ' ' + ${volontario.cognome}">Nome Cognome</span>
+                <div class="volontario-info">
+                    <span class="volontario-nome"
+                          th:text="${volontario.nome} + ' ' + ${volontario.cognome}">Nome Cognome</span>
+                    <span class="volontario-ruolo">Volontario</span>
+                </div>
             </li>
         </ul>
 
