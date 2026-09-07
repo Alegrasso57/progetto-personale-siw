@@ -51,6 +51,31 @@ public class UtenteService {
     }
 
     /**
+     * Aggiorna i dati anagrafici (nome, cognome, email, telefono) dell'utente indicato.
+     * Username, password e ruolo non sono modificabili da qui: lo username è l'identificativo
+     * di accesso (cambiarlo romperebbe l'autenticazione già in corso) e il ruolo è una scelta
+     * fatta in fase di registrazione, non un dato di profilo.
+     */
+    @Transactional
+    public Utente aggiornaProfilo(Long id, String nome, String cognome, String email, String telefono) {
+        Utente utente = utenteRepository.findById(id).orElse(null);
+        if (utente == null) {
+            throw new IllegalArgumentException("Utente non trovato");
+        }
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("Il nome è obbligatorio");
+        }
+        if (cognome == null || cognome.isBlank()) {
+            throw new IllegalArgumentException("Il cognome è obbligatorio");
+        }
+        utente.setNome(nome);
+        utente.setCognome(cognome);
+        utente.setEmail(email);
+        utente.setTelefono(telefono);
+        return utenteRepository.save(utente);
+    }
+
+    /**
      * Registra un nuovo utente con il ruolo indicato (VOLONTARIO o ADOTTANTE), cifrando la password.
      * Verifica che lo username non sia già in uso e, solo per chi si registra come VOLONTARIO,
      * che sia stato inserito il codice del centro corretto: senza questo controllo chiunque

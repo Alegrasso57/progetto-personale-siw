@@ -57,6 +57,7 @@
         <div sec:authorize="isAuthenticated()">
             <div class="auth-bar">
                 <p class="welcome-text">Bentornat* <span sec:authentication="principal.username">utente</span>!</p>
+                <a th:href="@{/profilo/modifica}" class="btn-action btn-modifica">Modifica</a>
                 <form th:action="@{/logout}" method="post" class="form-inline">
                     <button type="submit" class="btn-logout">Esci</button>
                 </form>

@@ -2,11 +2,14 @@ package it.uniroma3.siw.progettopersonale.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import it.uniroma3.siw.progettopersonale.model.Animale;
+import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.Ruolo;
 import it.uniroma3.siw.progettopersonale.model.Turno;
 import it.uniroma3.siw.progettopersonale.model.Utente;
@@ -69,6 +72,17 @@ public class TurnoService {
         return turnoRepository.findByAnimaleIsNullOrderByDataAscOraInizioAsc().stream()
                 .filter(turno -> !turno.getData().isBefore(oggi))
                 .collect(Collectors.toList());
+    }
+
+    /** Turni da mostrare nel form di modifica di una richiesta: i turni ancora liberi,
+     *  piu' quelli gia' prenotati per questa stessa richiesta (che altrimenti non
+     *  comparirebbero, avendo gia' un animale/richiesta associati), ordinati per data/ora. */
+    @Transactional(readOnly = true)
+    public List<Turno> findDisponibiliPerModifica(RichiestaAdozione richiesta) {
+        List<Turno> turni = new ArrayList<>(turnoRepository.findByRichiestaAdozione(richiesta));
+        turni.addAll(findDisponibiliPerPrenotazione());
+        turni.sort(Comparator.comparing(Turno::getData).thenComparing(Turno::getOraInizio));
+        return turni;
     }
 
     /** Il volontario dichiara una propria disponibilita' (nessun animale/richiesta associati). */

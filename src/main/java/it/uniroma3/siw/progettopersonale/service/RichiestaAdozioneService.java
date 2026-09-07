@@ -2,7 +2,9 @@ package it.uniroma3.siw.progettopersonale.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import it.uniroma3.siw.progettopersonale.model.Animale;
@@ -122,6 +124,10 @@ public class RichiestaAdozioneService {
             throw new IllegalStateException("Hai già una richiesta in attesa per questo animale");
         }
 
+        if (turnoIdsSelezionati == null || turnoIdsSelezionati.isEmpty()) {
+            throw new IllegalStateException("Devi selezionare necessariamente un turno per effettuare la visita");
+        }
+
         // Ricontrolla al momento del salvataggio che i turni scelti siano ancora
         // liberi (non fidandosi di quanto visto dall'adottante quando ha caricato
         // la pagina: nel frattempo qualcun altro potrebbe averli prenotati) e che
@@ -130,27 +136,25 @@ public class RichiestaAdozioneService {
         // due visite diverse nello stesso momento).
         List<Turno> turniGiaPrenotatiPerAnimale = turnoRepository.findByAnimale(animale);
         List<Turno> turniDaPrenotare = new ArrayList<>();
-        if (turnoIdsSelezionati != null) {
-            LocalDate oggi = LocalDate.now();
-            for (Long turnoId : turnoIdsSelezionati) {
-                Turno turno = turnoRepository.findById(turnoId).orElse(null);
-                if (turno == null) {
-                    throw new IllegalArgumentException("Uno dei turni scelti non esiste più");
-                }
-                if (turno.getAnimale() != null || turno.getRichiestaAdozione() != null) {
-                    throw new IllegalStateException(
-                            "Uno dei turni scelti non è più disponibile: aggiorna la pagina e riprova");
-                }
-                if (turno.getData().isBefore(oggi)) {
-                    throw new IllegalStateException("Uno dei turni scelti è ormai passato: aggiorna la pagina e riprova");
-                }
-                if (sovrappostoPerAnimale(turno, turniGiaPrenotatiPerAnimale)
-                        || sovrappostoPerAnimale(turno, turniDaPrenotare)) {
-                    throw new IllegalStateException(
-                            "Uno dei turni scelti si sovrappone a un'altra visita già prenotata per questo animale: aggiorna la pagina e riprova");
-                }
-                turniDaPrenotare.add(turno);
+        LocalDate oggi = LocalDate.now();
+        for (Long turnoId : turnoIdsSelezionati) {
+            Turno turno = turnoRepository.findById(turnoId).orElse(null);
+            if (turno == null) {
+                throw new IllegalArgumentException("Uno dei turni scelti non esiste più");
             }
+            if (turno.getAnimale() != null || turno.getRichiestaAdozione() != null) {
+                throw new IllegalStateException(
+                        "Uno dei turni scelti non è più disponibile: aggiorna la pagina e riprova");
+            }
+            if (turno.getData().isBefore(oggi)) {
+                throw new IllegalStateException("Uno dei turni scelti è ormai passato: aggiorna la pagina e riprova");
+            }
+            if (sovrappostoPerAnimale(turno, turniGiaPrenotatiPerAnimale)
+                    || sovrappostoPerAnimale(turno, turniDaPrenotare)) {
+                throw new IllegalStateException(
+                        "Uno dei turni scelti si sovrappone a un'altra visita già prenotata per questo animale: aggiorna la pagina e riprova");
+            }
+            turniDaPrenotare.add(turno);
         }
 
         RichiestaAdozione richiesta = new RichiestaAdozione();
@@ -187,6 +191,92 @@ public class RichiestaAdozioneService {
             }
         }
         return false;
+    }
+
+    /**
+     * Cambia i turni prenotati per una richiesta ancora IN_ATTESA, solo se appartiene
+     * all'utente che la sta modificando. I turni non più selezionati tornano liberi,
+     * quelli nuovi vengono prenotati dopo aver ripetuto gli stessi controlli di
+     * creaRichiesta (liberi, non passati, non sovrapposti ad altre visite dello
+     * stesso animale) — quelli già prenotati per questa stessa richiesta e
+     * riselezionati restano invariati.
+     */
+    @Transactional
+    public RichiestaAdozione modificaTurniPrenotati(Long richiestaId, String usernameRichiedente,
+                                                     List<Long> nuoviTurnoIds) {
+
+        RichiestaAdozione richiesta = richiestaAdozioneRepository.findById(richiestaId).orElse(null);
+        if (richiesta == null) {
+            throw new IllegalArgumentException("Richiesta non trovata");
+        }
+        if (!richiesta.getAdottante().getUsername().equals(usernameRichiedente)) {
+            throw new IllegalStateException("Non puoi modificare una richiesta di un altro utente");
+        }
+        if (richiesta.getStato() != StatoRichiesta.IN_ATTESA) {
+            throw new IllegalStateException("La richiesta è già stata gestita e non può più essere modificata");
+        }
+        if (nuoviTurnoIds == null || nuoviTurnoIds.isEmpty()) {
+            throw new IllegalStateException("Devi selezionare necessariamente un turno per effettuare la visita");
+        }
+
+        List<Turno> turniAttuali = turnoRepository.findByRichiestaAdozione(richiesta);
+        Set<Long> idAttuali = new HashSet<>();
+        for (Turno turno : turniAttuali) {
+            idAttuali.add(turno.getId());
+        }
+        Set<Long> idNuovi = new HashSet<>(nuoviTurnoIds);
+
+        // Libera i turni tenuti finora ma non più selezionati.
+        for (Turno turno : turniAttuali) {
+            if (!idNuovi.contains(turno.getId())) {
+                turno.setAnimale(null);
+                turno.setRichiestaAdozione(null);
+                turnoRepository.save(turno);
+            }
+        }
+
+        // Le altre visite già prenotate per lo stesso animale, escludendo quelle di
+        // questa stessa richiesta (che vengono comunque sostituite/confermate qui).
+        Animale animale = richiesta.getAnimale();
+        List<Turno> turniGiaPrenotatiPerAltri = new ArrayList<>();
+        for (Turno turno : turnoRepository.findByAnimale(animale)) {
+            if (!idAttuali.contains(turno.getId())) {
+                turniGiaPrenotatiPerAltri.add(turno);
+            }
+        }
+
+        LocalDate oggi = LocalDate.now();
+        List<Turno> turniDaPrenotare = new ArrayList<>();
+        for (Long turnoId : nuoviTurnoIds) {
+            if (idAttuali.contains(turnoId)) {
+                continue; // già prenotato per questa richiesta: nessuna modifica necessaria
+            }
+            Turno turno = turnoRepository.findById(turnoId).orElse(null);
+            if (turno == null) {
+                throw new IllegalArgumentException("Uno dei turni scelti non esiste più");
+            }
+            if (turno.getAnimale() != null || turno.getRichiestaAdozione() != null) {
+                throw new IllegalStateException(
+                        "Uno dei turni scelti non è più disponibile: aggiorna la pagina e riprova");
+            }
+            if (turno.getData().isBefore(oggi)) {
+                throw new IllegalStateException("Uno dei turni scelti è ormai passato: aggiorna la pagina e riprova");
+            }
+            if (sovrappostoPerAnimale(turno, turniGiaPrenotatiPerAltri)
+                    || sovrappostoPerAnimale(turno, turniDaPrenotare)) {
+                throw new IllegalStateException(
+                        "Uno dei turni scelti si sovrappone a un'altra visita già prenotata per questo animale: aggiorna la pagina e riprova");
+            }
+            turniDaPrenotare.add(turno);
+        }
+
+        for (Turno turno : turniDaPrenotare) {
+            turno.setAnimale(animale);
+            turno.setRichiestaAdozione(richiesta);
+            turnoRepository.save(turno);
+        }
+
+        return richiesta;
     }
 
     /** Libera i turni prenotati per una richiesta (usata quando la richiesta viene

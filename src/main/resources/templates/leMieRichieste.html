@@ -60,12 +60,15 @@
                     </li>
                 </ul>
             </div>
-            <form th:if="${richiesta.stato.name() == 'IN_ATTESA'}"
-                  th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/elimina'}" method="post"
-                  class="form-inline">
-                <button type="submit" class="btn-action btn-elimina"
-                        onclick="return confirm('Annullare la richiesta?')">Annulla richiesta</button>
-            </form>
+            <div class="actions" th:if="${richiesta.stato.name() == 'IN_ATTESA'}">
+                <a class="btn-action btn-modifica"
+                   th:href="@{'/le-mie-richieste/' + ${richiesta.id} + '/modifica'}">Modifica</a>
+                <form th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/elimina'}" method="post"
+                      class="form-inline">
+                    <button type="submit" class="btn-action btn-elimina"
+                            onclick="return confirm('Annullare la richiesta?')">Annulla richiesta</button>
+                </form>
+            </div>
         </div>
         <p th:if="${#lists.isEmpty(richieste)}">Non hai ancora inviato nessuna richiesta di adozione.</p>
     </div>

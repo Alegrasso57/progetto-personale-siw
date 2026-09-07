@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 public class Turno {
@@ -102,5 +103,18 @@ public class Turno {
 
     public void setRichiestaAdozione(RichiestaAdozione richiestaAdozione) {
         this.richiestaAdozione = richiestaAdozione;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Turno)) return false;
+        Turno turno = (Turno) o;
+        return id != null && id.equals(turno.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

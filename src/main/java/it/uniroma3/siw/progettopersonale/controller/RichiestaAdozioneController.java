@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import it.uniroma3.siw.progettopersonale.model.Animale;
+import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
+import it.uniroma3.siw.progettopersonale.model.StatoRichiesta;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
 import it.uniroma3.siw.progettopersonale.service.RichiestaAdozioneService;
@@ -83,5 +85,36 @@ public class RichiestaAdozioneController {
     public String eliminaRichiesta(@PathVariable("id") Long id, Principal principal) {
         richiestaAdozioneService.eliminaRichiesta(id, principal.getName());
         return "redirect:/le-mie-richieste";
+    }
+
+    @GetMapping("/le-mie-richieste/{id}/modifica")
+    public String formModificaTurni(@PathVariable("id") Long id, Principal principal, Model model) {
+        RichiestaAdozione richiesta = richiestaAdozioneService.findById(id);
+        if (richiesta == null
+                || !richiesta.getAdottante().getUsername().equals(principal.getName())
+                || richiesta.getStato() != StatoRichiesta.IN_ATTESA) {
+            return "redirect:/le-mie-richieste";
+        }
+        model.addAttribute("richiesta", richiesta);
+        model.addAttribute("turniDisponibili", turnoService.findDisponibiliPerModifica(richiesta));
+        model.addAttribute("errore", null);
+        return "modificaTurniRichiesta";
+    }
+
+    @PostMapping("/le-mie-richieste/{id}/modifica")
+    public String salvaModificaTurni(@PathVariable("id") Long id,
+                                      @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
+                                      Principal principal,
+                                      Model model) {
+        try {
+            richiestaAdozioneService.modificaTurniPrenotati(id, principal.getName(), turnoIdsSelezionati);
+            return "redirect:/le-mie-richieste";
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            RichiestaAdozione richiesta = richiestaAdozioneService.findById(id);
+            model.addAttribute("richiesta", richiesta);
+            model.addAttribute("turniDisponibili", turnoService.findDisponibiliPerModifica(richiesta));
+            model.addAttribute("errore", e.getMessage());
+            return "modificaTurniRichiesta";
+        }
     }
 }
