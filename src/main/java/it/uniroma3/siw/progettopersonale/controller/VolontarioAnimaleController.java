@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
@@ -22,8 +23,9 @@ public class VolontarioAnimaleController {
     }
 
     @GetMapping("/volontario/animali")
-    public String elenco(Model model) {
-        model.addAttribute("animaleList", animaleService.findAll());
+    public String elenco(@RequestParam(value = "cerca", required = false) String cerca, Model model) {
+        model.addAttribute("animaleList", animaleService.findAllBySearch(cerca));
+        model.addAttribute("cerca", cerca != null ? cerca : "");
         return "volontario/animali";
     }
 

@@ -62,6 +62,33 @@ public class RichiestaAdozioneService {
         return richiestaAdozioneRepository.findByStato(StatoRichiesta.IN_ATTESA);
     }
 
+    /** Filtra le richieste in attesa per nome animale o adottante. */
+    @Transactional(readOnly = true)
+    public List<RichiestaAdozione> findInAttesaBySearch(String q) {
+        if (q == null || q.isBlank()) {
+            return findInAttesa();
+        }
+        String lower = q.trim().toLowerCase();
+        return findInAttesa().stream()
+            .filter(r -> r.getAnimale().getNome().toLowerCase().contains(lower)
+                      || r.getAdottante().getNome().toLowerCase().contains(lower)
+                      || r.getAdottante().getCognome().toLowerCase().contains(lower))
+            .toList();
+    }
+
+    /** Filtra le richieste di un adottante per nome animale. */
+    @Transactional(readOnly = true)
+    public List<RichiestaAdozione> findByAdottanteIdAndSearch(Long adottanteId, String q) {
+        List<RichiestaAdozione> tutte = findByAdottanteId(adottanteId);
+        if (q == null || q.isBlank()) {
+            return tutte;
+        }
+        String lower = q.trim().toLowerCase();
+        return tutte.stream()
+            .filter(r -> r.getAnimale().getNome().toLowerCase().contains(lower))
+            .toList();
+    }
+
     @Transactional
     public RichiestaAdozione creaRichiesta(Long animaleId, Long adottanteId, String motivazione) {
 

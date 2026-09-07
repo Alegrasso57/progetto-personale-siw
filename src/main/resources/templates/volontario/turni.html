@@ -7,27 +7,51 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <title>Gestione turni</title>
+    <title>Gestione turni — Rifugio Amico</title>
 </head>
 <body>
-<div class="container">
-    <h1>Gestione turni</h1>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
 
-    <a th:href="@{/volontario/turni/nuovo}">+ Nuovo turno</a>
+    <div class="container">
+        <h1>Gestione turni</h1>
 
-    <div class="card" th:each="turno : ${turnoList}">
-        <p th:text="${turno.data} + ' — ' + ${turno.oraInizio} + ' - ' + ${turno.oraFine}">Data e ora</p>
-        <p th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
-        <p th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
-        <div class="actions">
-            <form th:action="@{'/volontario/turni/' + ${turno.id} + '/elimina'}" method="post">
-                <button type="submit">Elimina</button>
-            </form>
+        <a th:href="@{/volontario/turni/nuovo}" class="btn-nuovo">+ Nuovo turno</a>
+
+        <!-- Barra ricerca per data -->
+        <form th:action="@{/volontario/turni}" method="get" class="search-bar" id="form-ricerca-turni-vol">
+            <input type="date" name="data" id="data-turni-vol"
+                   th:value="${dataFiltro}"
+                   aria-label="Filtra per data">
+            <button type="submit">Cerca</button>
+        </form>
+
+        <!-- Lista turni con formato migliorato -->
+        <div class="turno-card" th:each="turno : ${turnoList}">
+            <p class="turno-data"
+               th:text="'Data : ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')}">Data</p>
+            <p class="turno-ora"
+               th:text="'Fascia oraria del turno : ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Orario</p>
+            <p class="turno-info" th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
+            <p class="turno-info" th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
+            <p class="turno-info" th:if="${turno.note != null and !turno.note.isEmpty()}" th:text="'Note: ' + ${turno.note}">Note</p>
+
+            <div class="actions">
+                <form th:action="@{'/volontario/turni/' + ${turno.id} + '/elimina'}"
+                      method="post" class="form-inline">
+                    <button type="submit" class="btn-action btn-elimina"
+                            onclick="return confirm('Sicuro di voler eliminare questo turno?')">Elimina</button>
+                </form>
+            </div>
         </div>
-    </div>
-    <p th:if="${#lists.isEmpty(turnoList)}">Non ci sono ancora turni programmati.</p>
 
-    <p><a th:href="@{/}">Torna alla home</a></p>
-</div>
+        <p th:if="${#lists.isEmpty(turnoList)}">Nessun turno programmato per la data selezionata.</p>
+
+        <p style="margin-top:2rem;"><a th:href="@{/}">← Torna alla home</a></p>
+    </div>
 </body>
 </html>

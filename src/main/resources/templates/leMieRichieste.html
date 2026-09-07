@@ -20,6 +20,15 @@
     <div class="container">
         <h1>Le mie richieste di adozione</h1>
 
+        <!-- Barra di ricerca per nome animale -->
+        <form th:action="@{/le-mie-richieste}" method="get" class="search-bar" id="form-ricerca-mie-richieste">
+            <input type="text" name="cerca" id="cerca-mie-richieste"
+                   th:value="${cerca}"
+                   placeholder="Cerca per nome animale…"
+                   aria-label="Cerca richiesta">
+            <button type="submit">Cerca</button>
+        </form>
+
         <div class="card" th:each="richiesta : ${richieste}">
             <span th:switch="${richiesta.stato.name()}">
                 <span th:case="'IN_ATTESA'" class="badge badge-in-valutazione">In attesa</span>
@@ -30,8 +39,10 @@
             <p th:text="'Data richiesta: ' + ${richiesta.dataRichiesta}">Data</p>
             <p th:text="${richiesta.motivazione}">Motivazione</p>
             <form th:if="${richiesta.stato.name() == 'IN_ATTESA'}"
-                  th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/elimina'}" method="post">
-                <button type="submit">Annulla richiesta</button>
+                  th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/elimina'}" method="post"
+                  class="form-inline">
+                <button type="submit" class="btn-action btn-elimina"
+                        onclick="return confirm('Annullare la richiesta?')">Annulla richiesta</button>
             </form>
         </div>
         <p th:if="${#lists.isEmpty(richieste)}">Non hai ancora inviato nessuna richiesta di adozione.</p>

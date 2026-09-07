@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Scopri gli animali disponibili per l'adozione al Rifugio Amico.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <title>Animali in adozione</title>
+    <title>Animali in adozione — Rifugio Amico</title>
 </head>
 <body>
     <nav class="main-nav">
@@ -20,17 +21,41 @@
     <div class="container">
         <h1>Animali disponibili per l'adozione</h1>
 
-        <p><a th:href="@{/animali/cerca}">Prova la ricerca interattiva per specie</a></p>
+        <!-- Barra di ricerca server-side -->
+        <form th:action="@{/animali}" method="get" class="search-bar" id="form-ricerca-animali">
+            <input type="text" name="cerca" id="cerca-animali"
+                   th:value="${cerca}"
+                   placeholder="Cerca per nome o specie…"
+                   aria-label="Cerca animale">
+            <button type="submit">Cerca</button>
+        </form>
+
+        <p><a th:href="@{/animali/cerca}">🔍 Prova la ricerca interattiva avanzata per specie (React)</a></p>
 
         <div class="card-grid">
-            <div class="card" th:each="animale : ${animaleList}">
+            <div class="animal-card" th:each="animale : ${animaleList}">
+                <span th:switch="${animale.stato.name()}">
+                    <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
+                    <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
+                    <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
+                </span>
+
                 <h3><a th:href="@{'/animali/' + ${animale.id}}" th:text="${animale.nome}">Nome</a></h3>
-                <p th:text="${animale.specie} + ' - ' + ${animale.razza}">Specie - Razza</p>
-                <p th:text="'Età: ' + ${animale.eta}">Età</p>
+
+                <div class="animal-meta">
+                    <span class="animal-tag" th:text="${animale.specie}">Specie</span>
+                    <span class="animal-tag" th:if="${animale.razza != null and !animale.razza.isEmpty()}" th:text="${animale.razza}">Razza</span>
+                    <span class="animal-tag" th:if="${animale.eta != null}" th:text="${animale.eta} + ' anni'">Età</span>
+                    <span class="animal-tag" th:if="${animale.sesso != null and !animale.sesso.isEmpty()}" th:text="${animale.sesso}">Sesso</span>
+                </div>
+
+                <p class="animal-desc"
+                   th:if="${animale.descrizione != null and !animale.descrizione.isEmpty()}"
+                   th:text="${#strings.abbreviate(animale.descrizione, 120)}">Descrizione</p>
             </div>
         </div>
 
-        <p th:if="${#lists.isEmpty(animaleList)}">Al momento non ci sono animali disponibili.</p>
+        <p th:if="${#lists.isEmpty(animaleList)}">Al momento non ci sono animali disponibili per la ricerca effettuata.</p>
     </div>
 </body>
 </html>

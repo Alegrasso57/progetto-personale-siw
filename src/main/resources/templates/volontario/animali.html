@@ -7,31 +7,72 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <title>Gestione animali</title>
+    <title>Gestione animali — Rifugio Amico</title>
 </head>
 <body>
-<div class="container">
-    <h1>Gestione animali</h1>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/animali}">Animali</a>
+        <a th:href="@{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+    </nav>
 
-    <a th:href="@{/volontario/animali/nuovo}">+ Nuovo animale</a>
+    <div class="container">
+        <h1>Gestione animali</h1>
 
-    <div class="card" th:each="animale : ${animaleList}">
-        <span th:switch="${animale.stato.name()}">
-            <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
-            <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
-            <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
-        </span>
-        <span th:text="${animale.nome} + ' - ' + ${animale.specie}">Nome - Specie</span>
-        <div class="actions">
-            <a class="button-like" th:href="@{'/volontario/animali/' + ${animale.id} + '/modifica'}">Modifica</a>
-            <form th:action="@{'/volontario/animali/' + ${animale.id} + '/elimina'}" method="post">
-                <button type="submit">Elimina</button>
-            </form>
+        <!-- Link Nuovo animale con stile btn-nuovo (stesso colore del testo nella nav) -->
+        <a th:href="@{/volontario/animali/nuovo}" class="btn-nuovo">+ Nuovo animale</a>
+
+        <!-- Barra di ricerca server-side -->
+        <form th:action="@{/volontario/animali}" method="get" class="search-bar" id="form-ricerca-animali-vol">
+            <input type="text" name="cerca" id="cerca-animali-vol"
+                   th:value="${cerca}"
+                   placeholder="Cerca per nome o specie…"
+                   aria-label="Cerca animale">
+            <button type="submit">Cerca</button>
+        </form>
+
+        <!-- Lista animali -->
+        <div class="animal-card" th:each="animale : ${animaleList}">
+            <!-- Badge stato -->
+            <span th:switch="${animale.stato.name()}">
+                <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
+                <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
+                <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
+            </span>
+
+            <!-- Nome -->
+            <h3 th:text="${animale.nome}">Nome</h3>
+
+            <!-- Caratteristiche sotto al nome -->
+            <div class="animal-meta">
+                <span class="animal-tag" th:text="${animale.specie}">Specie</span>
+                <span class="animal-tag" th:if="${animale.razza != null and !animale.razza.isEmpty()}" th:text="${animale.razza}">Razza</span>
+                <span class="animal-tag" th:if="${animale.eta != null}" th:text="${animale.eta} + ' anni'">Età</span>
+                <span class="animal-tag" th:if="${animale.sesso != null and !animale.sesso.isEmpty()}" th:text="${animale.sesso}">Sesso</span>
+            </div>
+
+            <!-- Descrizione -->
+            <p class="animal-desc"
+               th:if="${animale.descrizione != null and !animale.descrizione.isEmpty()}"
+               th:text="${animale.descrizione}">Descrizione</p>
+
+            <!-- Azioni: Modifica e Elimina con stessa dimensione, nessun banner bianco -->
+            <div class="actions">
+                <a class="btn-action btn-modifica"
+                   th:href="@{'/volontario/animali/' + ${animale.id} + '/modifica'}">Modifica</a>
+
+                <form th:action="@{'/volontario/animali/' + ${animale.id} + '/elimina'}"
+                      method="post" class="form-inline">
+                    <button type="submit" class="btn-action btn-elimina"
+                            onclick="return confirm('Sicuro di voler eliminare questo animale?')">Elimina</button>
+                </form>
+            </div>
         </div>
-    </div>
-    <p th:if="${#lists.isEmpty(animaleList)}">Non ci sono ancora animali registrati.</p>
 
-    <p><a th:href="@{/}">Torna alla home</a></p>
-</div>
+        <p th:if="${#lists.isEmpty(animaleList)}">Non ci sono ancora animali registrati.</p>
+
+        <p style="margin-top:2rem;"><a th:href="@{/}">← Torna alla home</a></p>
+    </div>
 </body>
 </html>

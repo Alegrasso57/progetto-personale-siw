@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
 import it.uniroma3.siw.progettopersonale.service.RecensioneService;
@@ -25,8 +26,9 @@ public class AnimaleController {
     }
 
     @GetMapping("/animali")
-    public String elenco(Model model) {
-        model.addAttribute("animaleList", animaleService.findDisponibili());
+    public String elenco(@RequestParam(value = "cerca", required = false) String cerca, Model model) {
+        model.addAttribute("animaleList", animaleService.findDisponibiliBySearch(cerca));
+        model.addAttribute("cerca", cerca != null ? cerca : "");
         return "animali";
     }
 

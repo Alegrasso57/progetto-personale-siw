@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="I volontari del Rifugio Amico che si prendono cura degli animali.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <title>I nostri volontari</title>
+    <title>I nostri volontari — Rifugio Amico</title>
 </head>
 <body>
     <nav class="main-nav">
@@ -20,11 +21,24 @@
     <div class="container">
         <h1>I nostri volontari</h1>
 
-        <div class="card-grid">
-            <div class="card" th:each="volontario : ${volontarioList}">
-                <h3 th:text="${volontario.nome} + ' ' + ${volontario.cognome}">Nome Cognome</h3>
-            </div>
-        </div>
+        <!-- Barra di ricerca server-side -->
+        <form th:action="@{/volontari}" method="get" class="search-bar" id="form-ricerca-volontari">
+            <input type="text" name="cerca" id="cerca-volontari"
+                   th:value="${cerca}"
+                   placeholder="Cerca per nome o cognome…"
+                   aria-label="Cerca volontario">
+            <button type="submit">Cerca</button>
+        </form>
+
+        <!-- Lista semplice senza hover-ingrandimento -->
+        <ul class="volontario-list" th:if="${!#lists.isEmpty(volontarioList)}">
+            <li class="volontario-list-item" th:each="volontario : ${volontarioList}">
+                <div class="volontario-avatar"
+                     th:text="${#strings.substring(volontario.nome,0,1) + #strings.substring(volontario.cognome,0,1)}">AB</div>
+                <span class="volontario-nome"
+                      th:text="${volontario.nome} + ' ' + ${volontario.cognome}">Nome Cognome</span>
+            </li>
+        </ul>
 
         <p th:if="${#lists.isEmpty(volontarioList)}">Non ci sono ancora volontari registrati.</p>
     </div>

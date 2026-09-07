@@ -41,6 +41,15 @@ public class UtenteService {
         return utenteRepository.findByRuolo(Ruolo.VOLONTARIO);
     }
 
+    /** Ricerca volontari per nome o cognome. */
+    @Transactional(readOnly = true)
+    public List<Utente> findVolontariBySearch(String q) {
+        if (q == null || q.isBlank()) {
+            return findVolontari();
+        }
+        return utenteRepository.searchByNomeOrCognomeAndRuolo(q.trim(), Ruolo.VOLONTARIO);
+    }
+
     /**
      * Registra un nuovo utente con il ruolo indicato (VOLONTARIO o ADOTTANTE), cifrando la password.
      * Verifica che lo username non sia già in uso e, solo per chi si registra come VOLONTARIO,

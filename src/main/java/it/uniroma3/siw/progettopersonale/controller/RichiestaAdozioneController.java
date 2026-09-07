@@ -56,9 +56,11 @@ public class RichiestaAdozioneController {
     }
 
     @GetMapping("/le-mie-richieste")
-    public String leMieRichieste(Principal principal, Model model) {
+    public String leMieRichieste(@RequestParam(value = "cerca", required = false) String cerca,
+                                  Principal principal, Model model) {
         Utente adottante = utenteService.findByUsername(principal.getName());
-        model.addAttribute("richieste", richiestaAdozioneService.findByAdottanteId(adottante.getId()));
+        model.addAttribute("richieste", richiestaAdozioneService.findByAdottanteIdAndSearch(adottante.getId(), cerca));
+        model.addAttribute("cerca", cerca != null ? cerca : "");
         return "leMieRichieste";
     }
 

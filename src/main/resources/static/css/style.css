@@ -60,7 +60,7 @@ body {
 
 /* ===== Contenitore principale ===== */
 .container {
-    max-width: 50rem;
+    max-width: 60rem;
     margin: 0 auto;
     padding: 2.5rem 1.5rem 4rem;
 }
@@ -191,11 +191,11 @@ ul.link-list li:last-child {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 1.25rem;
+    gap: 1.5rem;
 }
 
 .card-grid .card {
-    flex: 1 1 15rem;
+    flex: 1 1 18rem;
 }
 
 /* ===== Card: box model + position relative per il badge (slide "position: relative") ===== */
@@ -204,7 +204,7 @@ ul.link-list li:last-child {
     background-color: var(--color-surface);
     border: 0.0625rem solid var(--color-border);
     border-radius: var(--radius-md);
-    padding: 1.5rem;
+    padding: 1.75rem;
     margin-bottom: 1rem;
     box-shadow: var(--shadow-card);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -213,6 +213,176 @@ ul.link-list li:last-child {
 .card-grid .card:hover {
     box-shadow: var(--shadow-card-hover);
     transform: translateY(-0.125rem);
+}
+
+/* ===== Card animale migliorata ===== */
+.animal-card {
+    position: relative;
+    background-color: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    margin-bottom: 0;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-left: 0.3rem solid var(--color-primary);
+}
+
+.animal-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-0.15rem);
+}
+
+.animal-card h3 {
+    font-size: 1.3em;
+    margin: 0;
+    color: var(--color-primary-dark);
+}
+
+.animal-card .animal-meta {
+    font-size: 0.92rem;
+    color: var(--color-muted);
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.animal-card .animal-desc {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    margin: 0.5rem 0 0;
+    line-height: 1.5;
+    border-top: 0.0625rem solid var(--color-border);
+    padding-top: 0.75rem;
+}
+
+.animal-card .animal-tag {
+    display: inline-block;
+    background-color: var(--color-bg);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 0.15rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--color-muted);
+}
+
+/* ===== Card turno migliorata ===== */
+.turno-card {
+    background-color: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-card);
+    border-left: 0.3rem solid var(--color-accent);
+}
+
+.turno-card .turno-data {
+    font-family: var(--font-heading);
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin: 0 0 0.35rem;
+}
+
+.turno-card .turno-ora {
+    font-size: 1.05em;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+    margin: 0 0 0.5rem;
+}
+
+.turno-card .turno-info {
+    font-size: 0.92rem;
+    color: var(--color-muted);
+    margin: 0.25rem 0 0;
+}
+
+/* ===== Card volontario — lista semplice ===== */
+.volontario-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.volontario-list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s ease;
+}
+
+.volontario-list-item:hover {
+    border-color: var(--color-primary);
+}
+
+.volontario-avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.volontario-nome {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--color-text);
+}
+
+/* ===== Barra di ricerca ===== */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0 0 2rem;
+    max-width: 32rem;
+}
+
+.search-bar input[type="text"],
+.search-bar input[type="date"] {
+    flex: 1;
+    font-family: var(--font-body);
+    padding: 0.6rem 1rem;
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    margin-top: 0;
+    display: inline;
+    width: auto;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.1875rem rgba(74, 93, 67, 0.15);
+}
+
+.search-bar button {
+    margin-top: 0;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
 }
 
 /* ===== Badge di stato: position:absolute rispetto alla card (slide "position: absolute") ===== */
@@ -311,6 +481,56 @@ button:hover {
     background-color: var(--color-primary-dark);
 }
 
+/* ===== Form inline: azzera stili del form globale (usato per i bottoni Elimina inline) ===== */
+form.form-inline {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    margin: 0;
+    max-width: none;
+    box-shadow: none;
+    display: inline;
+}
+
+/* ===== Pulsante logout (senza sfondo/bordo bianco del form) ===== */
+.btn-logout {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0;
+    transition: background-color 0.2s ease;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.btn-logout:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* ===== Riga connesso: allineamento nome + logout ===== */
+.auth-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 1.5rem;
+}
+
+.auth-bar .welcome-text {
+    font-family: var(--font-heading);
+    font-size: 1.15em;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin: 0;
+}
+
 /* ===== Messaggi di errore ===== */
 .errore {
     background-color: #fbeee9;
@@ -343,12 +563,47 @@ button:hover {
     flex-direction: row;
     gap: 0.625rem;
     margin-top: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.actions button,
-.actions a.button-like {
-    flex: 0 1 calc(50% - 0.3125rem);
+/* ===== Bottoni azione uniformi (Modifica / Elimina) ===== */
+.btn-action {
+    display: inline-block;
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
     text-align: center;
+    text-decoration: none;
+    line-height: 1.4;
+}
+
+.btn-modifica {
+    background-color: transparent;
+    color: var(--color-accent-dark);
+    border: 0.0625rem solid var(--color-accent-dark);
+}
+
+.btn-modifica:hover {
+    background-color: var(--color-accent-dark);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-elimina {
+    background-color: transparent;
+    color: #a34328;
+    border: 0.0625rem solid #a34328;
+}
+
+.btn-elimina:hover {
+    background-color: #a34328;
+    color: white;
 }
 
 a.button-like {
@@ -365,6 +620,77 @@ a.button-like:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
     text-decoration: none;
+}
+
+/* ===== Nuovo animale link ===== */
+.btn-nuovo {
+    display: inline-block;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-nuovo:hover {
+    background-color: var(--color-primary-dark);
+    color: white;
+    text-decoration: none;
+}
+
+/* ===== Pagina N+1 Admin ===== */
+.n1-section {
+    background-color: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+.n1-section h2 {
+    margin-top: 0;
+    border-bottom: 0.0625rem solid var(--color-border);
+    padding-bottom: 0.75rem;
+}
+
+.code-block {
+    background-color: #f0ece4;
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--color-text);
+    margin: 0.75rem 0;
+}
+
+.badge-n1 {
+    display: inline-block;
+    background-color: #fbeee9;
+    color: #a34328;
+    border-radius: var(--radius-pill);
+    padding: 0.2rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.badge-ok {
+    display: inline-block;
+    background-color: var(--color-disponibile-bg);
+    color: var(--color-disponibile-text);
+    border-radius: var(--radius-pill);
+    padding: 0.2rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
 }
 
 /* ===== Media query per schermi piccoli (slide "CSS media query") ===== */
@@ -396,5 +722,16 @@ a.button-like:hover {
 
     form {
         max-width: 100%;
+    }
+
+    .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 100%;
+    }
+
+    .search-bar input[type="text"],
+    .search-bar input[type="date"] {
+        width: 100%;
     }
 }
