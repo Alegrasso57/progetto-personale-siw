@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class Animale {
 
     private String razza;
 
+    @Max(value = 25, message = "L'età non può superare i 25 anni")
     private Integer eta;
 
     private String sesso;

@@ -61,6 +61,9 @@
                     <button type="submit" class="btn-logout">Esci</button>
                 </form>
             </div>
+            <p sec:authorize="hasAuthority('VOLONTARIO')">
+                <a th:href="@{/admin/n-plus-1}">📊 Resoconto query N+1</a>
+            </p>
         </div>
 
         <!-- Area adottante -->
@@ -68,17 +71,6 @@
             <h2>Area adottante</h2>
             <ul class="link-list">
                 <li><a th:href="@{/le-mie-richieste}">Le mie richieste di adozione</a></li>
-            </ul>
-        </div>
-
-        <!-- Area volontario -->
-        <div class="admin-section" sec:authorize="hasAuthority('VOLONTARIO')">
-            <h2>Area volontario</h2>
-            <ul class="link-list">
-                <li><a th:href="@{/volontario/animali}">Gestione animali</a></li>
-                <li><a th:href="@{/volontario/turni}">Gestione turni</a></li>
-                <li><a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a></li>
-                <li><a th:href="@{/admin/n-plus-1}">📊 Resoconto query N+1</a></li>
             </ul>
         </div>
     </div>

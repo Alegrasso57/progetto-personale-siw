@@ -49,8 +49,6 @@
             <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
                th:text="'Motivazione della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
 
-            <p th:if="${richiesta.volontarioPreferito != null}"
-               th:text="'Volontario preferito: ' + ${richiesta.volontarioPreferito.nome} + ' ' + ${richiesta.volontarioPreferito.cognome}">Volontario preferito</p>
             <div th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
                 <p>Orari proposti per la visita:</p>
                 <ul class="link-list">

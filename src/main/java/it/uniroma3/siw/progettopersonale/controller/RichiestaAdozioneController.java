@@ -35,10 +35,9 @@ public class RichiestaAdozioneController {
     }
 
     /** Popola gli attributi per la scelta del turno (i turni che i volontari hanno
-     *  dichiarato disponibili e non sono ancora stati prenotati) e dei volontari. */
+     *  dichiarato disponibili e non sono ancora stati prenotati). */
     private void popolaModelloPrenotazione(Model model) {
         model.addAttribute("turniDisponibili", turnoService.findDisponibiliPerPrenotazione());
-        model.addAttribute("volontari", utenteService.findVolontari());
     }
 
     @GetMapping("/animali/{id}/richiedi-adozione")
@@ -56,18 +55,12 @@ public class RichiestaAdozioneController {
     @PostMapping("/animali/{id}/richiedi-adozione")
     public String inviaRichiesta(@PathVariable("id") Long id,
                                   @ModelAttribute("motivazione") String motivazione,
-                                  @RequestParam(value = "volontarioPreferitoId", required = false) String volontarioPreferitoIdStr,
                                   @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
                                   Principal principal,
                                   Model model) {
         Utente adottante = utenteService.findByUsername(principal.getName());
         try {
-            // Il <select> manda stringa vuota per "nessuna preferenza": va gestita a
-            // mano, altrimenti Spring fallirebbe a convertirla direttamente in Long.
-            Long volontarioPreferitoId = (volontarioPreferitoIdStr != null && !volontarioPreferitoIdStr.isBlank())
-                    ? Long.parseLong(volontarioPreferitoIdStr)
-                    : null;
-            richiestaAdozioneService.creaRichiesta(id, adottante.getId(), motivazione, volontarioPreferitoId, turnoIdsSelezionati);
+            richiestaAdozioneService.creaRichiesta(id, adottante.getId(), motivazione, turnoIdsSelezionati);
             return "redirect:/le-mie-richieste";
         } catch (IllegalArgumentException | IllegalStateException e) {
             model.addAttribute("animale", animaleService.findById(id));

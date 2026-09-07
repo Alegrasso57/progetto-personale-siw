@@ -97,7 +97,7 @@ public class RichiestaAdozioneService {
 
     @Transactional
     public RichiestaAdozione creaRichiesta(Long animaleId, Long adottanteId, String motivazione,
-                                            Long volontarioPreferitoId, List<Long> turnoIdsSelezionati) {
+                                            List<Long> turnoIdsSelezionati) {
 
         Animale animale = animaleRepository.findById(animaleId).orElse(null);
         if (animale == null) {
@@ -122,20 +122,13 @@ public class RichiestaAdozioneService {
             throw new IllegalStateException("Hai già una richiesta in attesa per questo animale");
         }
 
-        Utente volontarioPreferito = null;
-        if (volontarioPreferitoId != null) {
-            volontarioPreferito = utenteRepository.findById(volontarioPreferitoId).orElse(null);
-            if (volontarioPreferito == null) {
-                throw new IllegalArgumentException("Volontario preferito non trovato");
-            }
-            if (volontarioPreferito.getRuolo() != Ruolo.VOLONTARIO) {
-                throw new IllegalStateException("Il volontario preferito indicato non è un volontario");
-            }
-        }
-
         // Ricontrolla al momento del salvataggio che i turni scelti siano ancora
         // liberi (non fidandosi di quanto visto dall'adottante quando ha caricato
-        // la pagina: nel frattempo qualcun altro potrebbe averli prenotati).
+        // la pagina: nel frattempo qualcun altro potrebbe averli prenotati) e che
+        // non si sovrappongano a un turno di un altro volontario già prenotato per
+        // lo stesso animale (altrimenti lo stesso animale finirebbe "impegnato" in
+        // due visite diverse nello stesso momento).
+        List<Turno> turniGiaPrenotatiPerAnimale = turnoRepository.findByAnimale(animale);
         List<Turno> turniDaPrenotare = new ArrayList<>();
         if (turnoIdsSelezionati != null) {
             LocalDate oggi = LocalDate.now();
@@ -151,6 +144,11 @@ public class RichiestaAdozioneService {
                 if (turno.getData().isBefore(oggi)) {
                     throw new IllegalStateException("Uno dei turni scelti è ormai passato: aggiorna la pagina e riprova");
                 }
+                if (sovrappostoPerAnimale(turno, turniGiaPrenotatiPerAnimale)
+                        || sovrappostoPerAnimale(turno, turniDaPrenotare)) {
+                    throw new IllegalStateException(
+                            "Uno dei turni scelti si sovrappone a un'altra visita già prenotata per questo animale: aggiorna la pagina e riprova");
+                }
                 turniDaPrenotare.add(turno);
             }
         }
@@ -161,7 +159,6 @@ public class RichiestaAdozioneService {
         richiesta.setMotivazione(motivazione);
         richiesta.setDataRichiesta(LocalDate.now());
         richiesta.setStato(StatoRichiesta.IN_ATTESA);
-        richiesta.setVolontarioPreferito(volontarioPreferito);
         richiesta = richiestaAdozioneRepository.save(richiesta);
 
         for (Turno turno : turniDaPrenotare) {
@@ -171,6 +168,25 @@ public class RichiestaAdozioneService {
         }
 
         return richiesta;
+    }
+
+    /** Vero se il turno candidato si sovrappone (stessa data, fasce orarie che si
+     *  intersecano) a uno dei turni già prenotati per lo stesso animale, tenuti da
+     *  un volontario diverso: lo stesso animale non può risultare impegnato in due
+     *  visite nello stesso momento. */
+    private boolean sovrappostoPerAnimale(Turno candidato, List<Turno> turniEsistenti) {
+        for (Turno esistente : turniEsistenti) {
+            if (esistente.getId() != null && esistente.getId().equals(candidato.getId())) {
+                continue;
+            }
+            boolean stessaData = esistente.getData().equals(candidato.getData());
+            boolean orariSovrapposti = candidato.getOraInizio().isBefore(esistente.getOraFine())
+                    && esistente.getOraInizio().isBefore(candidato.getOraFine());
+            if (stessaData && orariSovrapposti) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Libera i turni prenotati per una richiesta (usata quando la richiesta viene

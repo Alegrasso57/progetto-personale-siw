@@ -34,10 +34,6 @@ public class RichiestaAdozione {
     @ManyToOne
     private Animale animale;
 
-    /** Volontario preferito indicato dall'adottante per la visita; puo' essere nullo (nessuna preferenza). */
-    @ManyToOne
-    private Utente volontarioPreferito;
-
     /** Turni (disponibilita' dichiarate dai volontari) prenotati dall'adottante per questa richiesta. */
     @OneToMany(mappedBy = "richiestaAdozione")
     private List<Turno> turniPrenotati = new ArrayList<>();
@@ -91,14 +87,6 @@ public class RichiestaAdozione {
 
     public void setAnimale(Animale animale) {
         this.animale = animale;
-    }
-
-    public Utente getVolontarioPreferito() {
-        return volontarioPreferito;
-    }
-
-    public void setVolontarioPreferito(Utente volontarioPreferito) {
-        this.volontarioPreferito = volontarioPreferito;
     }
 
     public List<Turno> getTurniPrenotati() {

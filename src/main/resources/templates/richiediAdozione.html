@@ -34,17 +34,6 @@
                 <textarea name="motivazione" rows="4"></textarea>
             </label>
 
-            <label>Preferenza volontario per la visita (facoltativo):
-                <select name="volontarioPreferitoId">
-                    <option value="">Nessuna preferenza</option>
-                    <option th:each="volontario : ${volontari}"
-                            th:value="${volontario.id}"
-                            th:text="${volontario.nome} + ' ' + ${volontario.cognome}">
-                        Volontario
-                    </option>
-                </select>
-            </label>
-
             <h2>Scegli uno o più turni per la visita (facoltativo)</h2>
             <p class="slot-legenda">
                 Questi sono gli orari che i volontari hanno dichiarato disponibili. Seleziona uno o più

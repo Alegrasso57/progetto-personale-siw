@@ -22,7 +22,7 @@
         <label>Nome: <input type="text" name="nome" th:value="${animale.nome}"></label>
         <label>Specie: <input type="text" name="specie" th:value="${animale.specie}"></label>
         <label>Razza: <input type="text" name="razza" th:value="${animale.razza}"></label>
-        <label>Età: <input type="number" name="eta" th:value="${animale.eta}"></label>
+        <label>Età: <input type="number" name="eta" min="0" max="25" th:value="${animale.eta}"></label>
         <label>Sesso: <input type="text" name="sesso" th:value="${animale.sesso}"></label>
         <label>Descrizione: <textarea name="descrizione" th:text="${animale.descrizione}"></textarea></label>
 
