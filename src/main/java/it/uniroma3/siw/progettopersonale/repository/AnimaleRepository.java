@@ -12,8 +12,6 @@ public interface AnimaleRepository extends JpaRepository<Animale, Long> {
 
     List<Animale> findByStato(StatoAnimale stato);
 
-    List<Animale> findBySpecieIgnoreCaseAndStato(String specie, StatoAnimale stato);
-
     /** Ricerca per nome o specie, case-insensitive, su tutti gli animali. */
     List<Animale> findByNomeContainingIgnoreCaseOrSpecieContainingIgnoreCase(String nome, String specie);
 

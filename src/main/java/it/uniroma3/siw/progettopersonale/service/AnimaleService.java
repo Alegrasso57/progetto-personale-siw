@@ -38,11 +38,6 @@ public class AnimaleService {
         return animaleRepository.findByStato(StatoAnimale.DISPONIBILE);
     }
 
-    @Transactional(readOnly = true)
-    public List<Animale> findDisponibiliPerSpecie(String specie) {
-        return animaleRepository.findBySpecieIgnoreCaseAndStato(specie, StatoAnimale.DISPONIBILE);
-    }
-
     /** Ricerca full-text su nome o specie tra gli animali disponibili. */
     @Transactional(readOnly = true)
     public List<Animale> findDisponibiliBySearch(String q) {

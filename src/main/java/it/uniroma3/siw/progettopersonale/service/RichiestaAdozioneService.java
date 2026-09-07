@@ -38,22 +38,8 @@ public class RichiestaAdozioneService {
     }
 
     @Transactional(readOnly = true)
-    public List<RichiestaAdozione> findAll() {
-        return richiestaAdozioneRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
     public RichiestaAdozione findById(Long id) {
         return richiestaAdozioneRepository.findById(id).orElse(null);
-    }
-
-    @Transactional(readOnly = true)
-    public List<RichiestaAdozione> findByAnimaleId(Long animaleId) {
-        Animale animale = animaleRepository.findById(animaleId).orElse(null);
-        if (animale == null) {
-            throw new IllegalArgumentException("Animale non trovato");
-        }
-        return richiestaAdozioneRepository.findByAnimale(animale);
     }
 
     @Transactional(readOnly = true)

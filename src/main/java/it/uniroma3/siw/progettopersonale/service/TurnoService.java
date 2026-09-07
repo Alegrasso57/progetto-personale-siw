@@ -31,11 +31,6 @@ public class TurnoService {
     }
 
     @Transactional(readOnly = true)
-    public List<Turno> findAll() {
-        return turnoRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
     public List<Turno> findByData(LocalDate data) {
         return turnoRepository.findByDataOrderByOraInizioAsc(data);
     }

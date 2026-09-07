@@ -32,11 +32,6 @@ public class UtenteService {
     }
 
     @Transactional(readOnly = true)
-    public Utente findById(Long id) {
-        return utenteRepository.findById(id).orElse(null);
-    }
-
-    @Transactional(readOnly = true)
     public List<Utente> findVolontari() {
         return utenteRepository.findByRuolo(Ruolo.VOLONTARIO);
     }

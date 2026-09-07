@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
-import it.uniroma3.siw.progettopersonale.service.TurnoService;
 
 /**
  * Controller per la sezione di utilità admin (accessibile ai VOLONTARIO).
@@ -17,11 +16,9 @@ import it.uniroma3.siw.progettopersonale.service.TurnoService;
 public class AdminController {
 
     private final AnimaleService animaleService;
-    private final TurnoService turnoService;
 
-    public AdminController(AnimaleService animaleService, TurnoService turnoService) {
+    public AdminController(AnimaleService animaleService) {
         this.animaleService = animaleService;
-        this.turnoService = turnoService;
     }
 
     /**

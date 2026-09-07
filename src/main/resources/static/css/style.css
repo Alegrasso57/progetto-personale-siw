@@ -762,12 +762,10 @@ form.form-inline {
 .btn-modifica {
     background-color: var(--color-accent-dark);
     color: white;
-    border: 0.0625rem solid var(--color-accent-dark);
 }
 
 .btn-modifica:hover {
     background-color: var(--color-accent);
-    border-color: var(--color-accent);
     color: white;
     text-decoration: none;
 }
@@ -787,29 +785,11 @@ a.btn-modifica:active {
 .btn-elimina {
     background-color: var(--color-primary);
     color: white;
-    border: 0.0625rem solid var(--color-primary);
 }
 
 .btn-elimina:hover {
     background-color: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
     color: white;
-}
-
-a.button-like {
-    display: inline-block;
-    background-color: var(--color-surface);
-    border: 0.0625rem solid var(--color-border);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-
-a.button-like:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-    text-decoration: none;
 }
 
 /* ===== Nuovo animale link ===== */

@@ -26,15 +26,17 @@
     </nav>
 
     <div class="container">
-        <h1>Programmazione turni</h1>
+        <div class="page-header-center">
+            <h1 class="page-header-title">Programmazione turni</h1>
 
-        <!-- Barra ricerca per data (server-side) -->
-        <form th:action="@{/turni}" method="get" class="search-bar" id="form-ricerca-turni">
-            <input type="date" name="data" id="data-turni"
-                   th:value="${dataSelezionata}"
-                   aria-label="Seleziona data">
-            <button type="submit">Cerca</button>
-        </form>
+            <!-- Barra ricerca per data (server-side), centrata insieme al titolo -->
+            <form th:action="@{/turni}" method="get" class="search-bar search-bar-compact" id="form-ricerca-turni">
+                <input type="date" name="data" id="data-turni"
+                       th:value="${dataSelezionata}"
+                       aria-label="Seleziona data">
+                <button type="submit">Cerca</button>
+            </form>
+        </div>
 
         <!-- Turni trovati -->
         <div th:each="turno : ${turnoList}" class="turno-card">
