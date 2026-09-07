@@ -577,6 +577,14 @@ textarea {
 }
 
 button {
+    /* Senza questo reset, alcuni browser applicano comunque un rendering nativo
+       (bordo/rilievo del sistema operativo) ai <button>, che li fa apparire piu'
+       "spessi" di un <a> con lo stesso identico bordo dichiarato in CSS: cosi'
+       invece il bordo dichiarato qui sotto (o su .btn-action/.btn-modifica/
+       .btn-elimina) e' l'unico a contare, su ogni browser. */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-color: var(--color-primary);
     color: white;
     border: none;

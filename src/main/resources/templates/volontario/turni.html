@@ -45,6 +45,8 @@
             <p class="turno-ora"
                th:text="'Fascia oraria del turno : ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Orario</p>
             <p class="turno-info" th:if="${turno.animale != null}" th:text="'Animale: ' + ${turno.animale.nome}">Animale</p>
+            <p class="turno-info" th:if="${turno.richiestaAdozione != null}"
+               th:text="'Adottante: ' + ${turno.richiestaAdozione.adottante.nome} + ' ' + ${turno.richiestaAdozione.adottante.cognome}">Adottante</p>
             <p class="turno-info" th:unless="${turno.animale != null}">Turno disponibile: nessuna visita ancora prenotata.</p>
             <p class="turno-info" th:if="${turno.note != null and !turno.note.isEmpty()}" th:text="'Note: ' + ${turno.note}">Note</p>
 

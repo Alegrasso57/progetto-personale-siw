@@ -55,7 +55,7 @@
                 <p>Orari proposti per la visita:</p>
                 <ul class="link-list">
                     <li th:each="turno : ${richiesta.turniPrenotati}"
-                        th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">
+                        th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')} + ' — Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">
                         Turno
                     </li>
                 </ul>
