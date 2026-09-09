@@ -16,14 +16,13 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "animali")
 public class Animale {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank(message = "Il nome è obbligatorio")
@@ -46,6 +45,7 @@ public class Animale {
     @Column(nullable = false)
     private StatoAnimale stato;
 
+    /** Composizione: i turni collegati a un animale non hanno senso senza di esso. */
     @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Turno> turni = new ArrayList<>();
 
@@ -157,15 +157,15 @@ public class Animale {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Animale)) return false;
-        Animale animale = (Animale) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Animale animale = (Animale) obj;
         return id != null && id.equals(animale.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return id != null ? id.hashCode() : 0;
     }
 }

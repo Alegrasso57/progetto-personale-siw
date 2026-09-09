@@ -1,36 +1,24 @@
 package it.uniroma3.siw.progettopersonale.service;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import it.uniroma3.siw.progettopersonale.exception.AnimaleNonTrovatoException;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
 import it.uniroma3.siw.progettopersonale.repository.AnimaleRepository;
-import it.uniroma3.siw.progettopersonale.repository.RecensioneRepository;
-import it.uniroma3.siw.progettopersonale.repository.RichiestaAdozioneRepository;
-import it.uniroma3.siw.progettopersonale.repository.TurnoRepository;
 
 @Service
 public class AnimaleService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AnimaleService.class);
+
     private final AnimaleRepository animaleRepository;
-    private final TurnoRepository turnoRepository;
-    private final RichiestaAdozioneRepository richiestaAdozioneRepository;
-    private final RecensioneRepository recensioneRepository;
 
-    public AnimaleService(AnimaleRepository animaleRepository,
-                           TurnoRepository turnoRepository,
-                           RichiestaAdozioneRepository richiestaAdozioneRepository,
-                           RecensioneRepository recensioneRepository) {
+    public AnimaleService(AnimaleRepository animaleRepository) {
         this.animaleRepository = animaleRepository;
-        this.turnoRepository = turnoRepository;
-        this.richiestaAdozioneRepository = richiestaAdozioneRepository;
-        this.recensioneRepository = recensioneRepository;
-    }
-
-    @Transactional(readOnly = true)
-    public List<Animale> findAll() {
-        return animaleRepository.findAll();
     }
 
     @Transactional(readOnly = true)
@@ -49,9 +37,9 @@ public class AnimaleService {
 
     /** Ricerca full-text su nome o specie su tutti gli animali (per il volontario). */
     @Transactional(readOnly = true)
-    public List<Animale> findAllBySearch(String q) {
+    public Iterable<Animale> findAllBySearch(String q) {
         if (q == null || q.isBlank()) {
-            return findAll();
+            return animaleRepository.findAll();
         }
         return animaleRepository.findByNomeContainingIgnoreCaseOrSpecieContainingIgnoreCase(q.trim(), q.trim());
     }
@@ -67,32 +55,26 @@ public class AnimaleService {
 
     @Transactional(readOnly = true)
     public Animale findById(Long id) {
-        return animaleRepository.findById(id).orElse(null);
+        return animaleRepository.findById(id).orElseThrow(() -> new AnimaleNonTrovatoException(id));
     }
 
     @Transactional
     public Animale save(Animale animale) {
-        return animaleRepository.save(animale);
+        Animale salvato = animaleRepository.save(animale);
+        logger.info("Animale salvato: id={}, nome={}", salvato.getId(), salvato.getNome());
+        return salvato;
     }
 
     /**
-     * Elimina un animale insieme a tutti i turni, le richieste di adozione e le recensioni collegate.
-     * Senza questa pulizia esplicita l'eliminazione fallirebbe per vincolo di integrità referenziale
-     * (Whitelabel Error Page) non appena l'animale avesse anche un solo record collegato.
-     * L'intera operazione è atomica grazie a @Transactional: se qualcosa fallisce a metà, tutto torna indietro.
+     * Elimina un animale. Turni, richieste di adozione e recensioni collegate vengono
+     * eliminati automaticamente da JPA grazie a cascade = ALL, orphanRemoval = true
+     * dichiarato sulle rispettive associazioni OneToMany nell'entità Animale: non serve
+     * più occuparsene esplicitamente qui.
      */
     @Transactional
     public void deleteById(Long id) {
-
-        Animale animale = animaleRepository.findById(id).orElse(null);
-        if (animale == null) {
-            throw new IllegalArgumentException("Animale non trovato");
-        }
-
-        turnoRepository.deleteAll(turnoRepository.findByAnimale(animale));
-        richiestaAdozioneRepository.deleteAll(richiestaAdozioneRepository.findByAnimale(animale));
-        recensioneRepository.deleteAll(recensioneRepository.findByAnimale(animale));
-
-        animaleRepository.deleteById(id);
+        Animale animale = findById(id);
+        animaleRepository.delete(animale);
+        logger.info("Animale eliminato: id={}", id);
     }
 }

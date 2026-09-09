@@ -2,13 +2,13 @@ package it.uniroma3.siw.progettopersonale.repository;
 
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface AnimaleRepository extends JpaRepository<Animale, Long> {
+public interface AnimaleRepository extends CrudRepository<Animale, Long> {
 
     List<Animale> findByStato(StatoAnimale stato);
 

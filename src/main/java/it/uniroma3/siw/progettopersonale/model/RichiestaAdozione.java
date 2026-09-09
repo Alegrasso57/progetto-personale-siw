@@ -92,4 +92,21 @@ public class RichiestaAdozione {
     public List<Turno> getTurniPrenotati() {
         return turniPrenotati;
     }
+
+    public void setTurniPrenotati(List<Turno> turniPrenotati) {
+        this.turniPrenotati = turniPrenotati;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        RichiestaAdozione that = (RichiestaAdozione) obj;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

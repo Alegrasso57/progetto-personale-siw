@@ -6,28 +6,42 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import it.uniroma3.siw.progettopersonale.exception.AccessoNonAutorizzatoException;
+import it.uniroma3.siw.progettopersonale.exception.AnimaleNonTrovatoException;
+import it.uniroma3.siw.progettopersonale.exception.OperazioneNonConsentitaException;
+import it.uniroma3.siw.progettopersonale.exception.TurnoNonTrovatoException;
+import it.uniroma3.siw.progettopersonale.exception.UtenteNonTrovatoException;
 import it.uniroma3.siw.progettopersonale.model.Animale;
+import it.uniroma3.siw.progettopersonale.model.Credenziali;
 import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.Ruolo;
 import it.uniroma3.siw.progettopersonale.model.Turno;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 import it.uniroma3.siw.progettopersonale.repository.AnimaleRepository;
+import it.uniroma3.siw.progettopersonale.repository.CredenzialiRepository;
 import it.uniroma3.siw.progettopersonale.repository.TurnoRepository;
 import it.uniroma3.siw.progettopersonale.repository.UtenteRepository;
 
 @Service
 public class TurnoService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TurnoService.class);
+
     private final TurnoRepository turnoRepository;
     private final AnimaleRepository animaleRepository;
     private final UtenteRepository utenteRepository;
+    private final CredenzialiRepository credenzialiRepository;
 
-    public TurnoService(TurnoRepository turnoRepository, AnimaleRepository animaleRepository, UtenteRepository utenteRepository) {
+    public TurnoService(TurnoRepository turnoRepository, AnimaleRepository animaleRepository,
+                         UtenteRepository utenteRepository, CredenzialiRepository credenzialiRepository) {
         this.turnoRepository = turnoRepository;
         this.animaleRepository = animaleRepository;
         this.utenteRepository = utenteRepository;
+        this.credenzialiRepository = credenzialiRepository;
     }
 
     @Transactional(readOnly = true)
@@ -37,16 +51,14 @@ public class TurnoService {
 
     @Transactional(readOnly = true)
     public List<Turno> findByAnimaleId(Long animaleId) {
-        Animale animale = animaleRepository.findById(animaleId).orElse(null);
-        if (animale == null) {
-            throw new IllegalArgumentException("Animale non trovato");
-        }
+        Animale animale = animaleRepository.findById(animaleId)
+                .orElseThrow(() -> new AnimaleNonTrovatoException(animaleId));
         return turnoRepository.findByAnimale(animale);
     }
 
     @Transactional(readOnly = true)
     public Turno findById(Long id) {
-        return turnoRepository.findById(id).orElse(null);
+        return turnoRepository.findById(id).orElseThrow(() -> new TurnoNonTrovatoException(id));
     }
 
     @Transactional(readOnly = true)
@@ -70,8 +82,7 @@ public class TurnoService {
     }
 
     /** Turni da mostrare nel form di modifica di una richiesta: i turni ancora liberi,
-     *  piu' quelli gia' prenotati per questa stessa richiesta (che altrimenti non
-     *  comparirebbero, avendo gia' un animale/richiesta associati), ordinati per data/ora. */
+     *  piu' quelli gia' prenotati per questa stessa richiesta, ordinati per data/ora. */
     @Transactional(readOnly = true)
     public List<Turno> findDisponibiliPerModifica(RichiestaAdozione richiesta) {
         List<Turno> turni = new ArrayList<>(turnoRepository.findByRichiestaAdozione(richiesta));
@@ -80,20 +91,28 @@ public class TurnoService {
         return turni;
     }
 
-    /** Il volontario dichiara una propria disponibilita' (nessun animale/richiesta associati). */
+    /** Ruolo di un Utente, recuperato tramite le sue Credenziali. */
+    private Ruolo ruoloDi(Utente utente) {
+        return credenzialiRepository.findByUtente(utente).map(Credenziali::getRuolo).orElse(null);
+    }
+
+    /** Il volontario dichiara una propria disponibilita' (nessun animale/richiesta associati).
+     *  Data/orari sono già stati validati come non-null dal controller tramite @Valid
+     *  sull'entità Turno; qui verifichiamo solo le regole di business del caso d'uso. */
     @Transactional
     public Turno creaTurno(Long volontarioId, LocalDate data, LocalTime oraInizio, LocalTime oraFine, String note) {
-        Utente volontario = utenteRepository.findById(volontarioId).orElse(null);
-        if (volontario == null || volontario.getRuolo() != Ruolo.VOLONTARIO) {
-            throw new IllegalArgumentException("Volontario non valido");
+        Utente volontario = utenteRepository.findById(volontarioId)
+                .orElseThrow(() -> new UtenteNonTrovatoException(volontarioId));
+        if (ruoloDi(volontario) != Ruolo.VOLONTARIO) {
+            throw new AccessoNonAutorizzatoException("Solo un volontario può dichiarare un turno di disponibilità.");
         }
-        if (oraInizio == null || oraFine == null || !oraFine.isAfter(oraInizio)) {
-            throw new IllegalArgumentException("L'ora di fine deve essere successiva all'ora di inizio");
+        if (!oraFine.isAfter(oraInizio)) {
+            throw new OperazioneNonConsentitaException("L'ora di fine deve essere successiva all'ora di inizio.");
         }
         boolean sovrapposto = turnoRepository.findByVolontarioAndData(volontario, data).stream()
                 .anyMatch(t -> oraInizio.isBefore(t.getOraFine()) && t.getOraInizio().isBefore(oraFine));
         if (sovrapposto) {
-            throw new IllegalArgumentException("Esiste gia' un turno che si sovrappone in questa fascia oraria");
+            throw new OperazioneNonConsentitaException("Esiste già un turno che si sovrappone in questa fascia oraria.");
         }
         Turno turno = new Turno();
         turno.setVolontario(volontario);
@@ -101,27 +120,26 @@ public class TurnoService {
         turno.setOraInizio(oraInizio);
         turno.setOraFine(oraFine);
         turno.setNote(note);
-        return turnoRepository.save(turno);
+        turno = turnoRepository.save(turno);
+        logger.info("Turno creato: volontarioId={}, data={}", volontarioId, data);
+        return turno;
     }
 
     /** Il volontario modifica un proprio turno; volontarioId e' l'utente che sta effettuando
      *  l'operazione ed e' usato per verificarne la proprieta'. */
     @Transactional
     public Turno modificaTurno(Long id, Long volontarioId, LocalDate data, LocalTime oraInizio, LocalTime oraFine, String note) {
-        Turno turno = turnoRepository.findById(id).orElse(null);
-        if (turno == null) {
-            throw new IllegalArgumentException("Turno non trovato");
-        }
+        Turno turno = findById(id);
         if (turno.getVolontario() == null || !turno.getVolontario().getId().equals(volontarioId)) {
-            throw new IllegalStateException("Non sei autorizzato a modificare questo turno");
+            throw new AccessoNonAutorizzatoException("Non sei autorizzato a modificare questo turno.");
         }
-        if (oraInizio == null || oraFine == null || !oraFine.isAfter(oraInizio)) {
-            throw new IllegalArgumentException("L'ora di fine deve essere successiva all'ora di inizio");
+        if (!oraFine.isAfter(oraInizio)) {
+            throw new OperazioneNonConsentitaException("L'ora di fine deve essere successiva all'ora di inizio.");
         }
         boolean sovrapposto = turnoRepository.findByVolontarioAndData(turno.getVolontario(), data).stream()
                 .anyMatch(t -> !t.getId().equals(id) && oraInizio.isBefore(t.getOraFine()) && t.getOraInizio().isBefore(oraFine));
         if (sovrapposto) {
-            throw new IllegalArgumentException("Esiste gia' un turno che si sovrappone in questa fascia oraria");
+            throw new OperazioneNonConsentitaException("Esiste già un turno che si sovrappone in questa fascia oraria.");
         }
         turno.setData(data);
         turno.setOraInizio(oraInizio);
@@ -133,13 +151,11 @@ public class TurnoService {
     /** Elimina un turno verificando che appartenga al volontario che ne fa richiesta. */
     @Transactional
     public void deleteById(Long id, Long volontarioId) {
-        Turno turno = turnoRepository.findById(id).orElse(null);
-        if (turno == null) {
-            return;
-        }
+        Turno turno = findById(id);
         if (turno.getVolontario() == null || !turno.getVolontario().getId().equals(volontarioId)) {
-            throw new IllegalStateException("Non sei autorizzato a eliminare questo turno");
+            throw new AccessoNonAutorizzatoException("Non sei autorizzato a eliminare questo turno.");
         }
         turnoRepository.deleteById(id);
+        logger.info("Turno eliminato: id={}", id);
     }
 }

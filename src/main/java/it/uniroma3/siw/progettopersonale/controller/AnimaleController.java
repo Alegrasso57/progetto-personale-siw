@@ -35,9 +35,6 @@ public class AnimaleController {
     @GetMapping("/animali/{id}")
     public String dettaglio(@PathVariable("id") Long id, Model model) {
         Animale animale = animaleService.findById(id);
-        if (animale == null) {
-            return "redirect:/animali";
-        }
         model.addAttribute("animale", animale);
         model.addAttribute("turni", turnoService.findByAnimaleId(id));
         model.addAttribute("recensioni", recensioneService.findByAnimaleId(id));

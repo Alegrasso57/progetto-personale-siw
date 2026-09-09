@@ -8,7 +8,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Objects;
 
 @Entity
 public class Turno {
@@ -106,15 +105,15 @@ public class Turno {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Turno)) return false;
-        Turno turno = (Turno) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Turno turno = (Turno) obj;
         return id != null && id.equals(turno.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return id != null ? id.hashCode() : 0;
     }
 }

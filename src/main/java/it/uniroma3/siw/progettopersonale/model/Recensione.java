@@ -87,4 +87,17 @@ public class Recensione {
     public void setAutore(Utente autore) {
         this.autore = autore;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Recensione recensione = (Recensione) obj;
+        return id != null && id.equals(recensione.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Operazione non consentita</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+    </nav>
+    <div class="container">
+        <h1>Operazione non consentita</h1>
+        <p th:text="${errorMessage}">L'operazione richiesta non è consentita in questo momento.</p>
+        <p><a th:href="@{/}">Torna alla home</a></p>
+    </div>
+</body>
+</html>

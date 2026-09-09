@@ -13,14 +13,23 @@
 <div class="container">
     <h1>Modifica i tuoi dati</h1>
 
-    <p th:if="${errore != null}" th:text="${errore}" class="errore">Messaggio di errore</p>
+    <div th:if="${#fields.hasGlobalErrors()}">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
+    </div>
 
-    <form th:action="@{/profilo}" method="post">
-        <label>Username: <input type="text" th:value="${utente.username}" disabled></label>
-        <label>Nome: <input type="text" name="nome" th:value="${utente.nome}"></label>
-        <label>Cognome: <input type="text" name="cognome" th:value="${utente.cognome}"></label>
-        <label>Email: <input type="email" name="email" th:value="${utente.email}"></label>
-        <label>Telefono: <input type="text" name="telefono" th:value="${utente.telefono}"></label>
+    <form th:action="@{/profilo}" method="post" th:object="${utente}">
+        <input type="hidden" th:field="*{id}">
+
+        <label>Username: <input type="text" th:value="${username}" disabled></label>
+
+        <label>Nome: <input type="text" th:field="*{nome}"></label>
+        <span th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" class="errore"></span>
+
+        <label>Cognome: <input type="text" th:field="*{cognome}"></label>
+        <span th:if="${#fields.hasErrors('cognome')}" th:errors="*{cognome}" class="errore"></span>
+
+        <label>Email: <input type="email" th:field="*{email}"></label>
+        <label>Telefono: <input type="text" th:field="*{telefono}"></label>
 
         <button type="submit">Salva modifiche</button>
     </form>

@@ -1,26 +1,42 @@
 package it.uniroma3.siw.progettopersonale.authentication;
 
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Configurazione di Spring Security, secondo lo schema visto a lezione (slide
+ * "Autenticazione e autorizzazione"): UserDetailsService basato su
+ * JdbcUserDetailsManager con query dirette sulla tabella "credenziali",
+ * PasswordEncoder con BCrypt, e SecurityFilterChain costruita a blocchi
+ * (autorizzazione, login, logout).
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    private final DataSource dataSource;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+        manager.setUsersByUsernameQuery(
+                "SELECT username, password, 1 as enabled FROM credenziali WHERE username = ?");
+        manager.setAuthoritiesByUsernameQuery(
+                "SELECT username, ruolo FROM credenziali WHERE username = ?");
+        return manager;
     }
 
     @Bean
@@ -29,55 +45,46 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(provider);
-    }
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        httpSecurity.authorizeHttpRequests(authorize -> {
+            authorize.requestMatchers(HttpMethod.GET,
+                            "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
+                            "/turni", "/volontari",
+                            "/register", "/login", "/error")
+                    .permitAll();
 
-        http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            authorize.requestMatchers(HttpMethod.GET, "/animali", "/animali/{id:[0-9]+}").permitAll();
 
-            .authorizeHttpRequests(authorize -> authorize
+            authorize.requestMatchers(HttpMethod.POST, "/register", "/login").permitAll();
 
-                .requestMatchers(HttpMethod.GET,
-                        "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
-                        "/turni", "/volontari",
-                        "/register", "/login", "/error")
-                .permitAll()
+            authorize.requestMatchers("/animali/*/richiedi-adozione",
+                            "/le-mie-richieste", "/le-mie-richieste/**",
+                            "/animali/*/recensioni/**", "/recensioni/**")
+                    .hasAuthority("ADOTTANTE");
 
-                .requestMatchers(HttpMethod.GET, "/animali", "/animali/{id:[0-9]+}").permitAll()
+            authorize.requestMatchers("/volontario/**", "/admin/**").hasAuthority("VOLONTARIO");
 
-                .requestMatchers(HttpMethod.POST, "/register", "/login").permitAll()
+            authorize.anyRequest().authenticated();
+        });
 
-                .requestMatchers("/animali/*/richiedi-adozione",
-                        "/le-mie-richieste", "/le-mie-richieste/**",
-                        "/animali/*/recensioni/**", "/recensioni/**")
-                .hasAuthority("ADOTTANTE")
+        httpSecurity.formLogin(form -> {
+            form.loginPage("/login").permitAll();
+            form.loginProcessingUrl("/login");
+            form.usernameParameter("username");
+            form.passwordParameter("password");
+            form.defaultSuccessUrl("/", true);
+            form.failureUrl("/login?error=true");
+        });
 
-                .requestMatchers("/volontario/**", "/admin/**").hasAuthority("VOLONTARIO")
+        httpSecurity.logout(logout -> {
+            logout.logoutUrl("/logout");
+            logout.logoutSuccessUrl("/");
+            logout.invalidateHttpSession(true);
+            logout.deleteCookies("JSESSIONID");
+            logout.permitAll();
+        });
 
-                .anyRequest().authenticated())
-
-            .formLogin(form -> form
-                    .loginPage("/login")
-                    .loginProcessingUrl("/login")
-                    .usernameParameter("username")
-                    .passwordParameter("password")
-                    .defaultSuccessUrl("/", true)
-                    .failureUrl("/login?error=true")
-                    .permitAll())
-
-            .logout(logout -> logout
-                    .logoutUrl("/logout")
-                    .logoutSuccessUrl("/")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
-                    .permitAll());
-
-        return http.build();
+        return httpSecurity.build();
     }
 }

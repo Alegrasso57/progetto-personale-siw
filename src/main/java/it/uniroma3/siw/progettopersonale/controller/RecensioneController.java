@@ -1,12 +1,16 @@
 package it.uniroma3.siw.progettopersonale.controller;
 
 import java.security.Principal;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import it.uniroma3.siw.progettopersonale.exception.AccessoNonAutorizzatoException;
+import it.uniroma3.siw.progettopersonale.exception.RecensioneGiaPresenteException;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.Recensione;
 import it.uniroma3.siw.progettopersonale.model.Utente;
@@ -31,30 +35,31 @@ public class RecensioneController {
 
     @GetMapping("/animali/{id}/recensioni/nuova")
     public String formNuova(@PathVariable("id") Long id, Model model) {
-        Animale animale = animaleService.findById(id);
-        if (animale == null) {
-            return "redirect:/animali";
-        }
-        model.addAttribute("animale", animale);
+        model.addAttribute("animale", animaleService.findById(id));
         model.addAttribute("recensione", new Recensione());
-        model.addAttribute("errore", null);
         return "recensioneForm";
     }
 
     @PostMapping("/animali/{id}/recensioni")
     public String creaRecensione(@PathVariable("id") Long id,
-                                  @ModelAttribute("testo") String testo,
-                                  @ModelAttribute("voto") Integer voto,
+                                  @Valid @ModelAttribute("recensione") Recensione recensioneForm,
+                                  BindingResult bindingResult,
                                   Principal principal,
                                   Model model) {
+
+        Animale animale = animaleService.findById(id);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("animale", animale);
+            return "recensioneForm";
+        }
+
         Utente autore = utenteService.findByUsername(principal.getName());
         try {
-            recensioneService.creaRecensione(id, autore.getId(), testo, voto);
+            recensioneService.creaRecensione(id, autore.getId(), recensioneForm);
             return "redirect:/animali/" + id;
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            model.addAttribute("animale", animaleService.findById(id));
-            model.addAttribute("recensione", new Recensione());
-            model.addAttribute("errore", e.getMessage());
+        } catch (RecensioneGiaPresenteException e) {
+            model.addAttribute("animale", animale);
+            bindingResult.reject("recensioneGiaPresente", e.getMessage());
             return "recensioneForm";
         }
     }
@@ -62,38 +67,39 @@ public class RecensioneController {
     @GetMapping("/recensioni/{id}/modifica")
     public String formModifica(@PathVariable("id") Long id, Principal principal, Model model) {
         Recensione recensione = recensioneService.findById(id);
-        if (recensione == null || !recensione.getAutore().getUsername().equals(principal.getName())) {
-            return "redirect:/animali";
+        Utente autoreAutenticato = utenteService.findByUsername(principal.getName());
+        if (!recensione.getAutore().getId().equals(autoreAutenticato.getId())) {
+            throw new AccessoNonAutorizzatoException("Non puoi modificare la recensione di un altro utente.");
         }
         model.addAttribute("animale", recensione.getAnimale());
         model.addAttribute("recensione", recensione);
-        model.addAttribute("errore", null);
         return "recensioneForm";
     }
 
     @PostMapping("/recensioni/{id}/modifica")
     public String modificaRecensione(@PathVariable("id") Long id,
-                                      @ModelAttribute("testo") String testo,
-                                      @ModelAttribute("voto") Integer voto,
+                                      @Valid @ModelAttribute("recensione") Recensione recensioneForm,
+                                      BindingResult bindingResult,
                                       Principal principal,
                                       Model model) {
-        try {
-            Recensione recensione = recensioneService.modificaRecensione(id, principal.getName(), testo, voto);
-            return "redirect:/animali/" + recensione.getAnimale().getId();
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            Recensione recensione = recensioneService.findById(id);
-            model.addAttribute("animale", recensione != null ? recensione.getAnimale() : null);
-            model.addAttribute("recensione", recensione);
-            model.addAttribute("errore", e.getMessage());
+
+        Recensione recensioneEsistente = recensioneService.findById(id);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("animale", recensioneEsistente.getAnimale());
             return "recensioneForm";
         }
+
+        Utente autoreAutenticato = utenteService.findByUsername(principal.getName());
+        Recensione recensione = recensioneService.modificaRecensione(id, autoreAutenticato.getId(), recensioneForm);
+        return "redirect:/animali/" + recensione.getAnimale().getId();
     }
 
     @PostMapping("/recensioni/{id}/elimina")
     public String eliminaRecensione(@PathVariable("id") Long id, Principal principal) {
         Recensione recensione = recensioneService.findById(id);
-        Long animaleId = (recensione != null) ? recensione.getAnimale().getId() : null;
-        recensioneService.eliminaRecensione(id, principal.getName());
-        return "redirect:/animali/" + (animaleId != null ? animaleId : "");
+        Long animaleId = recensione.getAnimale().getId();
+        Utente autoreAutenticato = utenteService.findByUsername(principal.getName());
+        recensioneService.eliminaRecensione(id, autoreAutenticato.getId());
+        return "redirect:/animali/" + animaleId;
     }
 }

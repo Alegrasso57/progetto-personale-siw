@@ -2,13 +2,13 @@ package it.uniroma3.siw.progettopersonale.repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.Turno;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 
-public interface TurnoRepository extends JpaRepository<Turno, Long> {
+public interface TurnoRepository extends CrudRepository<Turno, Long> {
 
     List<Turno> findByAnimale(Animale animale);
 

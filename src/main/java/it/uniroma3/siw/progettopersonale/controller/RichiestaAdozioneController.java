@@ -5,11 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import it.uniroma3.siw.progettopersonale.model.Animale;
+import it.uniroma3.siw.progettopersonale.exception.AccessoNonAutorizzatoException;
+import it.uniroma3.siw.progettopersonale.exception.AnimaleNonDisponibileException;
+import it.uniroma3.siw.progettopersonale.exception.OperazioneNonConsentitaException;
+import it.uniroma3.siw.progettopersonale.exception.RichiestaGiaPresenteException;
 import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.StatoRichiesta;
 import it.uniroma3.siw.progettopersonale.model.Utente;
@@ -44,11 +46,7 @@ public class RichiestaAdozioneController {
 
     @GetMapping("/animali/{id}/richiedi-adozione")
     public String formRichiesta(@PathVariable("id") Long id, Model model) {
-        Animale animale = animaleService.findById(id);
-        if (animale == null) {
-            return "redirect:/animali";
-        }
-        model.addAttribute("animale", animale);
+        model.addAttribute("animale", animaleService.findById(id));
         model.addAttribute("errore", null);
         popolaModelloPrenotazione(model);
         return "richiediAdozione";
@@ -56,7 +54,7 @@ public class RichiestaAdozioneController {
 
     @PostMapping("/animali/{id}/richiedi-adozione")
     public String inviaRichiesta(@PathVariable("id") Long id,
-                                  @ModelAttribute("motivazione") String motivazione,
+                                  @RequestParam("motivazione") String motivazione,
                                   @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
                                   Principal principal,
                                   Model model) {
@@ -64,7 +62,8 @@ public class RichiestaAdozioneController {
         try {
             richiestaAdozioneService.creaRichiesta(id, adottante.getId(), motivazione, turnoIdsSelezionati);
             return "redirect:/le-mie-richieste";
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (AnimaleNonDisponibileException | AccessoNonAutorizzatoException
+                 | RichiestaGiaPresenteException | OperazioneNonConsentitaException e) {
             model.addAttribute("animale", animaleService.findById(id));
             model.addAttribute("errore", e.getMessage());
             popolaModelloPrenotazione(model);
@@ -83,17 +82,20 @@ public class RichiestaAdozioneController {
 
     @PostMapping("/le-mie-richieste/{id}/elimina")
     public String eliminaRichiesta(@PathVariable("id") Long id, Principal principal) {
-        richiestaAdozioneService.eliminaRichiesta(id, principal.getName());
+        Utente adottante = utenteService.findByUsername(principal.getName());
+        richiestaAdozioneService.eliminaRichiesta(id, adottante.getId());
         return "redirect:/le-mie-richieste";
     }
 
     @GetMapping("/le-mie-richieste/{id}/modifica")
     public String formModificaTurni(@PathVariable("id") Long id, Principal principal, Model model) {
         RichiestaAdozione richiesta = richiestaAdozioneService.findById(id);
-        if (richiesta == null
-                || !richiesta.getAdottante().getUsername().equals(principal.getName())
-                || richiesta.getStato() != StatoRichiesta.IN_ATTESA) {
-            return "redirect:/le-mie-richieste";
+        Utente adottante = utenteService.findByUsername(principal.getName());
+        if (!richiesta.getAdottante().getId().equals(adottante.getId())) {
+            throw new AccessoNonAutorizzatoException("Non puoi modificare una richiesta di un altro utente.");
+        }
+        if (richiesta.getStato() != StatoRichiesta.IN_ATTESA) {
+            throw new OperazioneNonConsentitaException("La richiesta è già stata gestita e non può più essere modificata.");
         }
         model.addAttribute("richiesta", richiesta);
         model.addAttribute("turniDisponibili", turnoService.findDisponibiliPerModifica(richiesta));
@@ -106,10 +108,11 @@ public class RichiestaAdozioneController {
                                       @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
                                       Principal principal,
                                       Model model) {
+        Utente adottante = utenteService.findByUsername(principal.getName());
         try {
-            richiestaAdozioneService.modificaTurniPrenotati(id, principal.getName(), turnoIdsSelezionati);
+            richiestaAdozioneService.modificaTurniPrenotati(id, adottante.getId(), turnoIdsSelezionati);
             return "redirect:/le-mie-richieste";
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (OperazioneNonConsentitaException e) {
             RichiestaAdozione richiesta = richiestaAdozioneService.findById(id);
             model.addAttribute("richiesta", richiesta);
             model.addAttribute("turniDisponibili", turnoService.findDisponibiliPerModifica(richiesta));

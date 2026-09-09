@@ -2,14 +2,18 @@ package it.uniroma3.siw.progettopersonale.controller;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import it.uniroma3.siw.progettopersonale.exception.AccessoNonAutorizzatoException;
+import it.uniroma3.siw.progettopersonale.exception.OperazioneNonConsentitaException;
 import it.uniroma3.siw.progettopersonale.model.Turno;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 import it.uniroma3.siw.progettopersonale.service.TurnoService;
@@ -57,8 +61,7 @@ public class VolontarioTurnoController {
     /** Form per dichiarare un nuovo turno di disponibilita'. */
     @GetMapping("/volontario/turni/nuovo")
     public String formNuovo(Model model) {
-        model.addAttribute("turno", null);
-        model.addAttribute("errore", null);
+        model.addAttribute("turno", new Turno());
         return "volontario/turnoForm";
     }
 
@@ -66,41 +69,38 @@ public class VolontarioTurnoController {
     @GetMapping("/volontario/turni/{id}/modifica")
     public String formModifica(@PathVariable("id") Long id, Principal principal, Model model) {
         Turno turno = turnoService.findById(id);
-        if (turno == null) {
-            return "redirect:/volontario/turni";
-        }
         Utente volontario = utenteService.findByUsername(principal.getName());
         if (turno.getVolontario() == null || !turno.getVolontario().getId().equals(volontario.getId())) {
-            return "redirect:/volontario/turni";
+            throw new AccessoNonAutorizzatoException("Non sei autorizzato a modificare questo turno.");
         }
         model.addAttribute("turno", turno);
-        model.addAttribute("errore", null);
         return "volontario/turnoForm";
     }
 
-    /** Salva un turno nuovo o modificato, a seconda che l'id sia presente. */
+    /** Salva un turno nuovo o modificato, a seconda che l'id sia presente. Data/orari sono
+     *  gia' stati validati come non-null da @Valid sull'entita' Turno; qui il service verifica
+     *  solo le regole di business (sovrapposizione con altri turni, ora fine dopo ora inizio). */
     @PostMapping("/volontario/turni")
-    public String salva(@RequestParam(value = "id", required = false) Long id,
-                        @RequestParam("data") String dataStr,
-                        @RequestParam("oraInizio") String oraInizioStr,
-                        @RequestParam("oraFine") String oraFineStr,
-                        @RequestParam(value = "note", required = false) String note,
-                        Principal principal,
-                        Model model) {
+    public String salva(@Valid @ModelAttribute("turno") Turno turnoForm,
+                         BindingResult bindingResult,
+                         Principal principal,
+                         Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "volontario/turnoForm";
+        }
 
         Utente volontario = utenteService.findByUsername(principal.getName());
         try {
-            LocalDate data = LocalDate.parse(dataStr);
-            LocalTime oraInizio = LocalTime.parse(oraInizioStr);
-            LocalTime oraFine = LocalTime.parse(oraFineStr);
-            if (id != null) {
-                turnoService.modificaTurno(id, volontario.getId(), data, oraInizio, oraFine, note);
+            if (turnoForm.getId() != null) {
+                turnoService.modificaTurno(turnoForm.getId(), volontario.getId(), turnoForm.getData(),
+                        turnoForm.getOraInizio(), turnoForm.getOraFine(), turnoForm.getNote());
             } else {
-                turnoService.creaTurno(volontario.getId(), data, oraInizio, oraFine, note);
+                turnoService.creaTurno(volontario.getId(), turnoForm.getData(),
+                        turnoForm.getOraInizio(), turnoForm.getOraFine(), turnoForm.getNote());
             }
             return "redirect:/volontario/turni";
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            model.addAttribute("turno", null);
+        } catch (OperazioneNonConsentitaException e) {
             model.addAttribute("errore", e.getMessage());
             return "volontario/turnoForm";
         }

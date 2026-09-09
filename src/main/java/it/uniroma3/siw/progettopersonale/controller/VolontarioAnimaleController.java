@@ -33,19 +33,13 @@ public class VolontarioAnimaleController {
     public String formNuovo(Model model) {
         model.addAttribute("animale", new Animale());
         model.addAttribute("statiAnimale", StatoAnimale.values());
-        model.addAttribute("erroreValidazione", false);
         return "volontario/animaleForm";
     }
 
     @GetMapping("/volontario/animali/{id}/modifica")
     public String formModifica(@PathVariable("id") Long id, Model model) {
-        Animale animale = animaleService.findById(id);
-        if (animale == null) {
-            return "redirect:/volontario/animali";
-        }
-        model.addAttribute("animale", animale);
+        model.addAttribute("animale", animaleService.findById(id));
         model.addAttribute("statiAnimale", StatoAnimale.values());
-        model.addAttribute("erroreValidazione", false);
         return "volontario/animaleForm";
     }
 
@@ -56,7 +50,6 @@ public class VolontarioAnimaleController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("statiAnimale", StatoAnimale.values());
-            model.addAttribute("erroreValidazione", true);
             return "volontario/animaleForm";
         }
 
