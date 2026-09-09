@@ -46,13 +46,13 @@ public class Animale {
     private StatoAnimale stato;
 
     /** Composizione: i turni collegati a un animale non hanno senso senza di esso. */
-    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Turno> turni = new ArrayList<>();
 
-    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RichiestaAdozione> richiesteAdozione = new ArrayList<>();
 
-    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Recensione> recensioni = new ArrayList<>();
 
     public Animale() {

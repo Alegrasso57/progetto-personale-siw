@@ -25,10 +25,6 @@ public class Utente {
     @NotBlank(message = "Il cognome è obbligatorio")
     private String cognome;
 
-    private String email;
-
-    private String telefono;
-
     public Utente() {
     }
 
@@ -54,22 +50,6 @@ public class Utente {
 
     public void setCognome(String cognome) {
         this.cognome = cognome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     @Override

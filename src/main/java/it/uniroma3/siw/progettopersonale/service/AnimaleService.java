@@ -67,7 +67,7 @@ public class AnimaleService {
 
     /**
      * Elimina un animale. Turni, richieste di adozione e recensioni collegate vengono
-     * eliminati automaticamente da JPA grazie a cascade = ALL, orphanRemoval = true
+     * eliminati automaticamente da JPA grazie a cascade = ALL (evento REMOVE)
      * dichiarato sulle rispettive associazioni OneToMany nell'entità Animale: non serve
      * più occuparsene esplicitamente qui.
      */

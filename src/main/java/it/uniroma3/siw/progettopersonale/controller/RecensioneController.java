@@ -1,7 +1,8 @@
 package it.uniroma3.siw.progettopersonale.controller;
 
-import java.security.Principal;
 import jakarta.validation.Valid;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,7 +45,6 @@ public class RecensioneController {
     public String creaRecensione(@PathVariable("id") Long id,
                                   @Valid @ModelAttribute("recensione") Recensione recensioneForm,
                                   BindingResult bindingResult,
-                                  Principal principal,
                                   Model model) {
 
         Animale animale = animaleService.findById(id);
@@ -53,7 +53,8 @@ public class RecensioneController {
             return "recensioneForm";
         }
 
-        Utente autore = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente autore = utenteService.findByUsername(userDetails.getUsername());
         try {
             recensioneService.creaRecensione(id, autore.getId(), recensioneForm);
             return "redirect:/animali/" + id;
@@ -65,9 +66,10 @@ public class RecensioneController {
     }
 
     @GetMapping("/recensioni/{id}/modifica")
-    public String formModifica(@PathVariable("id") Long id, Principal principal, Model model) {
+    public String formModifica(@PathVariable("id") Long id, Model model) {
         Recensione recensione = recensioneService.findById(id);
-        Utente autoreAutenticato = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente autoreAutenticato = utenteService.findByUsername(userDetails.getUsername());
         if (!recensione.getAutore().getId().equals(autoreAutenticato.getId())) {
             throw new AccessoNonAutorizzatoException("Non puoi modificare la recensione di un altro utente.");
         }
@@ -80,7 +82,6 @@ public class RecensioneController {
     public String modificaRecensione(@PathVariable("id") Long id,
                                       @Valid @ModelAttribute("recensione") Recensione recensioneForm,
                                       BindingResult bindingResult,
-                                      Principal principal,
                                       Model model) {
 
         Recensione recensioneEsistente = recensioneService.findById(id);
@@ -89,16 +90,18 @@ public class RecensioneController {
             return "recensioneForm";
         }
 
-        Utente autoreAutenticato = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente autoreAutenticato = utenteService.findByUsername(userDetails.getUsername());
         Recensione recensione = recensioneService.modificaRecensione(id, autoreAutenticato.getId(), recensioneForm);
         return "redirect:/animali/" + recensione.getAnimale().getId();
     }
 
     @PostMapping("/recensioni/{id}/elimina")
-    public String eliminaRecensione(@PathVariable("id") Long id, Principal principal) {
+    public String eliminaRecensione(@PathVariable("id") Long id) {
         Recensione recensione = recensioneService.findById(id);
         Long animaleId = recensione.getAnimale().getId();
-        Utente autoreAutenticato = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente autoreAutenticato = utenteService.findByUsername(userDetails.getUsername());
         recensioneService.eliminaRecensione(id, autoreAutenticato.getId());
         return "redirect:/animali/" + animaleId;
     }

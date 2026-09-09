@@ -1,7 +1,8 @@
 package it.uniroma3.siw.progettopersonale.controller;
 
-import java.security.Principal;
 import java.util.List;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,9 +57,9 @@ public class RichiestaAdozioneController {
     public String inviaRichiesta(@PathVariable("id") Long id,
                                   @RequestParam("motivazione") String motivazione,
                                   @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
-                                  Principal principal,
                                   Model model) {
-        Utente adottante = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente adottante = utenteService.findByUsername(userDetails.getUsername());
         try {
             richiestaAdozioneService.creaRichiesta(id, adottante.getId(), motivazione, turnoIdsSelezionati);
             return "redirect:/le-mie-richieste";
@@ -73,24 +74,27 @@ public class RichiestaAdozioneController {
 
     @GetMapping("/le-mie-richieste")
     public String leMieRichieste(@RequestParam(value = "cerca", required = false) String cerca,
-                                  Principal principal, Model model) {
-        Utente adottante = utenteService.findByUsername(principal.getName());
+                                  Model model) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente adottante = utenteService.findByUsername(userDetails.getUsername());
         model.addAttribute("richieste", richiestaAdozioneService.findByAdottanteIdAndSearch(adottante.getId(), cerca));
         model.addAttribute("cerca", cerca != null ? cerca : "");
         return "leMieRichieste";
     }
 
     @PostMapping("/le-mie-richieste/{id}/elimina")
-    public String eliminaRichiesta(@PathVariable("id") Long id, Principal principal) {
-        Utente adottante = utenteService.findByUsername(principal.getName());
+    public String eliminaRichiesta(@PathVariable("id") Long id) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente adottante = utenteService.findByUsername(userDetails.getUsername());
         richiestaAdozioneService.eliminaRichiesta(id, adottante.getId());
         return "redirect:/le-mie-richieste";
     }
 
     @GetMapping("/le-mie-richieste/{id}/modifica")
-    public String formModificaTurni(@PathVariable("id") Long id, Principal principal, Model model) {
+    public String formModificaTurni(@PathVariable("id") Long id, Model model) {
         RichiestaAdozione richiesta = richiestaAdozioneService.findById(id);
-        Utente adottante = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente adottante = utenteService.findByUsername(userDetails.getUsername());
         if (!richiesta.getAdottante().getId().equals(adottante.getId())) {
             throw new AccessoNonAutorizzatoException("Non puoi modificare una richiesta di un altro utente.");
         }
@@ -106,9 +110,9 @@ public class RichiestaAdozioneController {
     @PostMapping("/le-mie-richieste/{id}/modifica")
     public String salvaModificaTurni(@PathVariable("id") Long id,
                                       @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
-                                      Principal principal,
                                       Model model) {
-        Utente adottante = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente adottante = utenteService.findByUsername(userDetails.getUsername());
         try {
             richiestaAdozioneService.modificaTurniPrenotati(id, adottante.getId(), turnoIdsSelezionati);
             return "redirect:/le-mie-richieste";

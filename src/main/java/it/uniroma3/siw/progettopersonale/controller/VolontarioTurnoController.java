@@ -1,9 +1,10 @@
 package it.uniroma3.siw.progettopersonale.controller;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import jakarta.validation.Valid;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,9 +41,9 @@ public class VolontarioTurnoController {
     /** Elenco dei soli turni del volontario autenticato, con filtro opzionale per data. */
     @GetMapping("/volontario/turni")
     public String elenco(@RequestParam(value = "data", required = false) String dataStr,
-                          Principal principal,
                           Model model) {
-        Utente volontario = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente volontario = utenteService.findByUsername(userDetails.getUsername());
         List<Turno> turnoList;
         LocalDate dataFiltro = null;
 
@@ -67,9 +68,10 @@ public class VolontarioTurnoController {
 
     /** Form per modificare un proprio turno esistente. */
     @GetMapping("/volontario/turni/{id}/modifica")
-    public String formModifica(@PathVariable("id") Long id, Principal principal, Model model) {
+    public String formModifica(@PathVariable("id") Long id, Model model) {
         Turno turno = turnoService.findById(id);
-        Utente volontario = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente volontario = utenteService.findByUsername(userDetails.getUsername());
         if (turno.getVolontario() == null || !turno.getVolontario().getId().equals(volontario.getId())) {
             throw new AccessoNonAutorizzatoException("Non sei autorizzato a modificare questo turno.");
         }
@@ -83,14 +85,14 @@ public class VolontarioTurnoController {
     @PostMapping("/volontario/turni")
     public String salva(@Valid @ModelAttribute("turno") Turno turnoForm,
                          BindingResult bindingResult,
-                         Principal principal,
                          Model model) {
 
         if (bindingResult.hasErrors()) {
             return "volontario/turnoForm";
         }
 
-        Utente volontario = utenteService.findByUsername(principal.getName());
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente volontario = utenteService.findByUsername(userDetails.getUsername());
         try {
             if (turnoForm.getId() != null) {
                 turnoService.modificaTurno(turnoForm.getId(), volontario.getId(), turnoForm.getData(),
@@ -108,8 +110,9 @@ public class VolontarioTurnoController {
 
     /** Elimina un proprio turno per id. */
     @PostMapping("/volontario/turni/{id}/elimina")
-    public String elimina(@PathVariable("id") Long id, Principal principal) {
-        Utente volontario = utenteService.findByUsername(principal.getName());
+    public String elimina(@PathVariable("id") Long id) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Utente volontario = utenteService.findByUsername(userDetails.getUsername());
         turnoService.deleteById(id, volontario.getId());
         return "redirect:/volontario/turni";
     }

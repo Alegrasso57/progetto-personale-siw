@@ -1,7 +1,8 @@
 package it.uniroma3.siw.progettopersonale.controller;
 
-import java.security.Principal;
 import jakarta.validation.Valid;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,7 +14,7 @@ import it.uniroma3.siw.progettopersonale.service.UtenteService;
 
 /**
  * Consente a qualunque utente autenticato (adottante o volontario) di modificare
- * i propri dati anagrafici (nome, cognome, email, telefono).
+ * i propri dati anagrafici (nome, cognome).
  */
 @Controller
 public class ProfiloController {
@@ -25,24 +26,26 @@ public class ProfiloController {
     }
 
     @GetMapping("/profilo/modifica")
-    public String formModifica(Principal principal, Model model) {
-        model.addAttribute("utente", utenteService.findByUsername(principal.getName()));
-        model.addAttribute("username", principal.getName());
+    public String formModifica(Model model) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("utente", utenteService.findByUsername(userDetails.getUsername()));
+        model.addAttribute("username", userDetails.getUsername());
         return "profiloForm";
     }
 
     @PostMapping("/profilo")
     public String salva(@Valid @ModelAttribute("utente") Utente utenteForm,
                          BindingResult bindingResult,
-                         Principal principal,
                          Model model) {
 
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("username", principal.getName());
+            model.addAttribute("username", userDetails.getUsername());
             return "profiloForm";
         }
 
-        Utente utenteAutenticato = utenteService.findByUsername(principal.getName());
+        Utente utenteAutenticato = utenteService.findByUsername(userDetails.getUsername());
         utenteService.aggiornaProfilo(utenteAutenticato.getId(), utenteForm);
         return "redirect:/";
     }

@@ -17,11 +17,11 @@
     <div class="container">
         <h1>Crea un account</h1>
 
-        <div th:if="${#fields.hasGlobalErrors()}">
-            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
-        </div>
-
         <form th:action="@{/register}" method="post" th:object="${registrazioneForm}">
+            <div th:if="${#fields.hasGlobalErrors()}">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
+            </div>
+
             <label>Username: <input type="text" th:field="*{username}"></label>
             <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="errore"></span>
 
@@ -34,8 +34,6 @@
             <label>Cognome: <input type="text" th:field="*{cognome}"></label>
             <span th:if="${#fields.hasErrors('cognome')}" th:errors="*{cognome}" class="errore"></span>
 
-            <label>Email: <input type="email" th:field="*{email}"></label>
-            <label>Telefono: <input type="text" th:field="*{telefono}"></label>
 
             <label>Registrati come:
                 <select th:field="*{ruolo}">

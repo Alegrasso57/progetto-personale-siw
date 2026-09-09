@@ -24,10 +24,6 @@ public class RegistrazioneForm {
     @NotBlank(message = "Il cognome è obbligatorio")
     private String cognome;
 
-    private String email;
-
-    private String telefono;
-
     @NotNull(message = "Seleziona il ruolo con cui registrarti")
     private Ruolo ruolo;
 
@@ -63,22 +59,6 @@ public class RegistrazioneForm {
 
     public void setCognome(String cognome) {
         this.cognome = cognome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 
     public Ruolo getRuolo() {

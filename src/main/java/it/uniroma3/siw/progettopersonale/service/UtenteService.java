@@ -63,7 +63,7 @@ public class UtenteService {
     }
 
     /**
-     * Aggiorna i dati anagrafici (nome, cognome, email, telefono) dell'utente indicato.
+     * Aggiorna i dati anagrafici (nome, cognome) dell'utente indicato.
      * Username, password e ruolo non sono modificabili da qui: sono gestiti dalle
      * Credenziali, non fanno parte del profilo anagrafico.
      */
@@ -72,8 +72,6 @@ public class UtenteService {
         Utente utente = findById(id);
         utente.setNome(datiAggiornati.getNome());
         utente.setCognome(datiAggiornati.getCognome());
-        utente.setEmail(datiAggiornati.getEmail());
-        utente.setTelefono(datiAggiornati.getTelefono());
         Utente salvato = utenteRepository.save(utente);
         logger.info("Profilo aggiornato per utente id={}", id);
         return salvato;

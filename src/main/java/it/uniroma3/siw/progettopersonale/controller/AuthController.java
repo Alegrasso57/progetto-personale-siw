@@ -44,8 +44,6 @@ public class AuthController {
         Utente utente = new Utente();
         utente.setNome(form.getNome());
         utente.setCognome(form.getCognome());
-        utente.setEmail(form.getEmail());
-        utente.setTelefono(form.getTelefono());
 
         try {
             credenzialiService.registra(form.getUsername(), form.getPassword(), form.getRuolo(),

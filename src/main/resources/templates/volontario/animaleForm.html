@@ -13,11 +13,11 @@
 <div class="container">
     <h1>Animale</h1>
 
-    <div th:if="${#fields.hasGlobalErrors()}">
-        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
-    </div>
-
     <form th:action="@{/volontario/animali}" method="post" th:object="${animale}">
+        <div th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
+        </div>
+
         <input type="hidden" th:field="*{id}">
 
         <label>Nome: <input type="text" th:field="*{nome}"></label>

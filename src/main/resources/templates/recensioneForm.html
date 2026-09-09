@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,13 +14,13 @@
         <a th:href="@{/}">Home</a>
         <div class="nav-item-dropdown">
             <a th:href="@{/animali}">Animali</a>
-            <div class="nav-dropdown-menu" sec:authorize="hasAuthority('VOLONTARIO')">
+            <div class="nav-dropdown-menu" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
                 <a th:href="@{/volontario/animali}">Gestione animali</a>
                 <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
                 <a th:href="@{/animali}">Animali da adottare</a>
             </div>
         </div>
-        <a th:href="${#authorization.expression('hasAuthority(''VOLONTARIO'')')} ? @{/volontario/turni} : @{/turni}">Turni</a>
+        <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
     </nav>
 
