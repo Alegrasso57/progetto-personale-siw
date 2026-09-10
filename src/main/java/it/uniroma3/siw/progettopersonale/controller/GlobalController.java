@@ -6,18 +6,31 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import it.uniroma3.siw.progettopersonale.service.AnimaleService;
+import it.uniroma3.siw.progettopersonale.service.UtenteService;
+import it.uniroma3.siw.progettopersonale.model.Utente;
+
+import java.util.List;
 
 /**
- * Rende disponibile l'utente autenticato a tutti i template, secondo il pattern
+ * Rende disponibili a tutti i template alcuni dati comuni, secondo il pattern
  * mostrato a lezione (slide "Autenticazione e autorizzazione", "Ottenere info
- * sull'utente loggato"): un @ControllerAdvice con un metodo @ModelAttribute che
- * legge il Principal dal SecurityContextHolder. Cosi' ogni template puo' leggere
- * ${userDetails} (null se l'utente non e' autenticato) senza che ogni singolo
- * controller debba passarlo esplicitamente nel Model.
+ * sull'utente loggato"): un @ControllerAdvice con metodi @ModelAttribute, cosi'
+ * ogni template puo' leggerli senza che ogni singolo controller debba passarli
+ * esplicitamente nel Model.
  */
 @ControllerAdvice
 public class GlobalController {
 
+    private final AnimaleService animaleService;
+    private final UtenteService utenteService;
+
+    public GlobalController(AnimaleService animaleService, UtenteService utenteService) {
+        this.animaleService = animaleService;
+        this.utenteService = utenteService;
+    }
+
+    /** L'utente autenticato (null se non autenticato), letto dal Principal nel SecurityContextHolder. */
     @ModelAttribute("userDetails")
     public UserDetails getUser() {
         UserDetails user = null;
@@ -26,5 +39,25 @@ public class GlobalController {
             user = (UserDetails) authentication.getPrincipal();
         }
         return user;
+    }
+
+    /** Le specie di animali disponibili, per il menu di navigazione e la home. */
+    @ModelAttribute("specieDisponibili")
+    public List<String> getSpecieDisponibili() {
+        return animaleService.findSpecieDisponibili();
+    }
+
+    /**
+     * I dati anagrafici (Utente) dell'utente autenticato, null se anonimo: utile nei
+     * template per confronti sull'id (es. "e' una mia recensione?"), oltre a
+     * ${userDetails.username}.
+     */
+    @ModelAttribute("utenteAutenticato")
+    public Utente getUtenteAutenticato() {
+        UserDetails userDetails = getUser();
+        if (userDetails == null) {
+            return null;
+        }
+        return utenteService.findByUsername(userDetails.getUsername());
     }
 }

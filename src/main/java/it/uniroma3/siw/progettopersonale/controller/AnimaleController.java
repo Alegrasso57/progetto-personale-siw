@@ -26,10 +26,26 @@ public class AnimaleController {
     }
 
     @GetMapping("/animali")
-    public String elenco(@RequestParam(value = "cerca", required = false) String cerca, Model model) {
-        model.addAttribute("animaleList", animaleService.findDisponibiliBySearch(cerca));
+    public String elenco(@RequestParam(value = "cerca", required = false) String cerca,
+                          @RequestParam(value = "specie", required = false) String specie,
+                          Model model) {
+        if (specie != null && !specie.isBlank()) {
+            model.addAttribute("animaleList", animaleService.findDisponibiliBySpecie(specie));
+        } else {
+            model.addAttribute("animaleList", animaleService.findDisponibiliBySearch(cerca));
+        }
         model.addAttribute("cerca", cerca != null ? cerca : "");
         return "animali";
+    }
+
+    /**
+     * Pagina dedicata alle specie trattate dal sito (diversa dall'elenco
+     * animali): specieDisponibili e' gia' nel Model per ogni pagina, via il
+     * @ModelAttribute di GlobalController.
+     */
+    @GetMapping("/specie")
+    public String elencoSpecie() {
+        return "specie";
     }
 
     @GetMapping("/animali/{id}")

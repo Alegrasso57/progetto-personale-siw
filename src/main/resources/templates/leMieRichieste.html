@@ -20,8 +20,10 @@
                 <a th:href="@{/animali}">Animali da adottare</a>
             </div>
         </div>
+        <a th:href="@{/specie}">Specie</a>
         <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
+        <a th:href="@{/recensioni-volontari}">Recensioni</a>
     </nav>
 
     <div class="container">
@@ -50,7 +52,8 @@
             </span>
             <p th:text="'Animale: ' + ${richiesta.animale.nome}">Animale</p>
             <p th:text="'Data richiesta : ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
-            <p th:text="'Motivo della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
+            <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
+               th:text="'Motivo della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
             <div th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
                 <p>Orari proposti per la visita:</p>
                 <ul class="link-list">

@@ -398,11 +398,108 @@ ul.link-list li:last-child {
     color: var(--color-text);
 }
 
+/* .volontario-nome e' un <a> solo nella pagina /specie (il nome del
+   volontario in /volontari resta un <span>, non cliccabile): qualificato
+   con "a." cosi' non introduce un hover sul nome del volontario. */
+a.volontario-nome {
+    text-decoration: none;
+}
+
+a.volontario-nome:hover {
+    text-decoration: underline;
+    color: var(--color-primary);
+}
+
 .volontario-ruolo {
     font-size: 0.78rem;
     color: var(--color-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* ===== Recensioni sull'operato dei volontari: pagina dedicata
+   /recensioni-volontari, elenco di box + form per inserirne una ===== */
+.recensioni-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.recensione-item {
+    background-color: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.85rem;
+}
+
+.recensione-autore {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 0 0 0.2rem;
+}
+
+.recensione-testo {
+    font-size: 0.88rem;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.recensione-stelle {
+    color: var(--color-accent);
+    font-size: 1.1rem;
+    letter-spacing: 0.05rem;
+    margin: 0.2rem 0;
+}
+
+/* ===== Selettore voto a stelle (radio nascosti + label), senza JavaScript:
+   l'ordine nel markup va da 5 a 1, "row-reverse" lo visualizza da 1 a 5, cosi'
+   ":checked ~ label" e ":hover ~ label" (selettore "fratelli successivi")
+   evidenziano anche tutte le stelle a sinistra di quella scelta/sotto il
+   puntatore ===== */
+.stelle-input {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.2rem;
+    width: fit-content;
+    margin-top: 0.375rem;
+}
+
+.stelle-input input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.stelle-input label {
+    font-size: 1.8rem;
+    line-height: 1;
+    color: var(--color-border);
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.stelle-input label:hover,
+.stelle-input label:hover ~ label,
+.stelle-input input:checked ~ label {
+    color: var(--color-accent);
+}
+
+.recensione-item form {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    box-shadow: none;
+    max-width: none;
+}
+
+.form-recensione {
+    max-width: 26rem;
+    margin: 0.5rem 0 0;
 }
 
 /* ===== Barra di ricerca ===== */
@@ -717,6 +814,17 @@ form.form-inline {
     font-size: 0.9rem;
 }
 
+/* ===== Messaggi di successo (es. recensione inserita/eliminata) ===== */
+.successo {
+    background-color: #eef4ea;
+    color: var(--color-primary-dark);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    border-left: 0.25rem solid var(--color-primary);
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
 /* ===== Sezione volontario/adottante: pannello con tinta tenue ===== */
 .admin-section {
     background-color: #eef1ea;
@@ -726,6 +834,36 @@ form.form-inline {
     padding: 1.5rem;
     border-radius: var(--radius-md);
     margin-top: 2.5rem;
+}
+
+/* ===== Sezione "Sfoglia per specie" in home ===== */
+.specie-section {
+    margin: 2.5rem 0;
+}
+
+ul.specie-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+}
+
+ul.specie-list li a {
+    display: inline-block;
+    padding: 0.5rem 1.1rem;
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    background-color: #fff;
+    transition: background-color 0.15s ease;
+}
+
+ul.specie-list li a:hover {
+    background-color: #eef1ea;
+    border-color: var(--color-primary);
 }
 
 .admin-section h2 {

@@ -50,7 +50,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(authorize -> {
             authorize.requestMatchers(HttpMethod.GET,
                             "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
-                            "/turni", "/volontari",
+                            "/turni", "/volontari", "/specie", "/recensioni-volontari",
                             "/register", "/login", "/error")
                     .permitAll();
 

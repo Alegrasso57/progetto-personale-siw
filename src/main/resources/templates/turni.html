@@ -21,8 +21,10 @@
                 <a th:href="@{/animali}">Animali da adottare</a>
             </div>
         </div>
+        <a th:href="@{/specie}">Specie</a>
         <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
+        <a th:href="@{/recensioni-volontari}">Recensioni</a>
     </nav>
 
     <div class="container">

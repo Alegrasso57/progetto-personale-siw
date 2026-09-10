@@ -55,7 +55,7 @@ public class RichiestaAdozioneController {
 
     @PostMapping("/animali/{id}/richiedi-adozione")
     public String inviaRichiesta(@PathVariable("id") Long id,
-                                  @RequestParam("motivazione") String motivazione,
+                                  @RequestParam(value = "motivazione", required = false) String motivazione,
                                   @RequestParam(value = "turnoId", required = false) List<Long> turnoIdsSelezionati,
                                   Model model) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

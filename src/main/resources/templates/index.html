@@ -21,8 +21,10 @@
                 <a th:href="@{/animali}">Animali da adottare</a>
             </div>
         </div>
+        <a th:href="@{/specie}">Specie</a>
         <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
         <a th:href="@{/volontari}">Volontari</a>
+        <a th:href="@{/recensioni-volontari}">Recensioni</a>
     </nav>
 
     <div class="container">
@@ -41,6 +43,7 @@
                     <li><a th:href="@{/animali}">Animali in adozione</a></li>
                     <li><a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Programmazione turni</a></li>
                     <li><a th:href="@{/volontari}">I nostri volontari</a></li>
+                    <li><a th:href="@{/recensioni-volontari}">Recensioni sui volontari</a></li>
                 </ul>
             </div>
         </section>
@@ -62,9 +65,6 @@
                     <button type="submit" class="btn-logout">Esci</button>
                 </form>
             </div>
-            <p th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
-                <a th:href="@{/admin/n-plus-1}">📊 Resoconto query N+1</a>
-            </p>
         </div>
 
         <!-- Area adottante -->
@@ -72,6 +72,14 @@
             <h2>Area adottante</h2>
             <ul class="link-list">
                 <li><a th:href="@{/le-mie-richieste}">Le mie richieste di adozione</a></li>
+            </ul>
+        </div>
+
+        <!-- Area volontario -->
+        <div class="admin-section" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
+            <h2>Area volontario</h2>
+            <ul class="link-list">
+                <li><a th:href="@{/admin/analisi-prestazioni}">Analisi delle prestazioni</a></li>
             </ul>
         </div>
     </div>

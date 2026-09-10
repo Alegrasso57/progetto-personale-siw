@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Analisi delle prestazioni — Rifugio Amico</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/specie}">Specie</a>
+        <a th:href="@{/volontario/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+        <a th:href="@{/recensioni-volontari}">Recensioni</a>
+    </nav>
+
+    <div class="container">
+        <h1>Analisi delle prestazioni</h1>
+        <p>Questa pagina dimostra il problema delle query N+1 nell'accesso a relazioni JPA/Hibernate caricate in modalità lazy (<code>volontario.getTurni()</code>), e come risolverlo con <code>JOIN FETCH</code>.</p>
+
+        <div class="card">
+            <h2>Il problema N+1</h2>
+            <p>Per mostrare, per ogni volontario, i turni che ha messo a disposizione, un modo naturale ma inefficiente è:</p>
+            <ol>
+                <li>Una query per caricare l'elenco dei volontari.</li>
+                <li>Una query aggiuntiva <strong>per ogni singolo volontario</strong>, eseguita nel momento in cui si accede a <code>volontario.getTurni()</code> (relazione <code>@OneToMany</code> caricata in modalità lazy).</li>
+            </ol>
+            <p>Con <strong th:text="${totaleVolontari}">N</strong> volontari nel database, il totale è <strong th:text="${queriesSenzaSoluzione}">N+1</strong> query: esattamente il problema "N+1".</p>
+        </div>
+
+        <div class="card">
+            <h2>La soluzione: JOIN FETCH</h2>
+            <p>Usando <code>LEFT JOIN FETCH</code> nella query JPQL, i turni vengono caricati insieme ai volontari in un'unica query, indipendentemente da quanti volontari ci sono:</p>
+            <p>Numero di query eseguite: <strong th:text="${queriesConSoluzione}">1</strong>.</p>
+        </div>
+
+        <div class="card">
+            <h2>Risultato</h2>
+            <p>Turni totali messi a disposizione da tutti i volontari: <strong th:text="${totaleTurni}">N</strong>.</p>
+
+            <ul class="link-list" th:if="${!#lists.isEmpty(volontariConTurni)}">
+                <li th:each="volontario : ${volontariConTurni}">
+                    <span th:text="${volontario.nome} + ' ' + ${volontario.cognome} + ': ' + ${#lists.size(volontario.turni)} + ' turno/i'">Volontario: N turni</span>
+                </li>
+            </ul>
+            <p th:if="${#lists.isEmpty(volontariConTurni)}">Non ci sono ancora volontari con turni registrati.</p>
+        </div>
+
+        <p><a th:href="@{/}">Torna alla home</a></p>
+    </div>
+</body>
+</html>

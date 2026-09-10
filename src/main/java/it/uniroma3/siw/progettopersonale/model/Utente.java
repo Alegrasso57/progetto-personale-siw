@@ -1,10 +1,14 @@
 package it.uniroma3.siw.progettopersonale.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dati anagrafici di una persona registrata (volontario o adottante).
@@ -24,6 +28,14 @@ public class Utente {
 
     @NotBlank(message = "Il cognome è obbligatorio")
     private String cognome;
+
+    /**
+     * Turni che questo volontario ha messo a disposizione (vuota per un
+     * Utente con ruolo ADOTTANTE): usata dalla pagina di analisi N+1 in
+     * /admin, sullo stesso schema di Animale.recensioni.
+     */
+    @OneToMany(mappedBy = "volontario", fetch = FetchType.LAZY)
+    private List<Turno> turni = new ArrayList<>();
 
     public Utente() {
     }
@@ -50,6 +62,14 @@ public class Utente {
 
     public void setCognome(String cognome) {
         this.cognome = cognome;
+    }
+
+    public List<Turno> getTurni() {
+        return turni;
+    }
+
+    public void setTurni(List<Turno> turni) {
+        this.turni = turni;
     }
 
     @Override

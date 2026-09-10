@@ -35,6 +35,18 @@ public class AnimaleService {
         return animaleRepository.searchByNomeOrSpecieAndStato(q.trim(), StatoAnimale.DISPONIBILE);
     }
 
+    /** Animali disponibili di una specie esatta (link "per specie" in nav e home). */
+    @Transactional(readOnly = true)
+    public List<Animale> findDisponibiliBySpecie(String specie) {
+        return animaleRepository.findByStatoAndSpecieIgnoreCase(StatoAnimale.DISPONIBILE, specie);
+    }
+
+    /** Specie presenti tra gli animali disponibili, per il menu e la home. */
+    @Transactional(readOnly = true)
+    public List<String> findSpecieDisponibili() {
+        return animaleRepository.findDistinctSpecieByStato(StatoAnimale.DISPONIBILE);
+    }
+
     /** Ricerca full-text su nome o specie su tutti gli animali (per il volontario). */
     @Transactional(readOnly = true)
     public Iterable<Animale> findAllBySearch(String q) {
@@ -44,14 +56,6 @@ public class AnimaleService {
         return animaleRepository.findByNomeContainingIgnoreCaseOrSpecieContainingIgnoreCase(q.trim(), q.trim());
     }
 
-    /**
-     * Carica tutti gli animali con le recensioni in una sola query (soluzione N+1).
-     * Usato nella pagina admin per dimostrare JOIN FETCH.
-     */
-    @Transactional(readOnly = true)
-    public List<Animale> findAllWithRecensioni() {
-        return animaleRepository.findAllWithRecensioni();
-    }
 
     @Transactional(readOnly = true)
     public Animale findById(Long id) {

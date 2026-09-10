@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Recensioni sull'operato dei volontari del Rifugio Amico.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Recensioni sui volontari — Rifugio Amico</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="@{/specie}">Specie</a>
+        <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+        <a th:href="@{/recensioni-volontari}">Recensioni</a>
+    </nav>
+
+    <div class="container">
+        <div class="page-header-center">
+            <h1 class="page-header-title">Recensioni sui volontari</h1>
+        </div>
+
+        <p th:if="${erroreRecensione != null}" th:text="${erroreRecensione}" class="errore"></p>
+        <p th:if="${successoRecensione != null}" th:text="${successoRecensione}" class="successo"></p>
+
+        <!-- Inserimento recensione: solo utenti autenticati non volontari -->
+        <form th:if="${puoRecensire}" th:action="@{/recensioni-volontari}" method="post" class="form-recensione">
+            <label>Volontario:
+                <select name="volontarioId" required>
+                    <option value="" disabled selected>Scegli un volontario</option>
+                    <option th:each="v : ${volontari}" th:value="${v.id}"
+                            th:text="${v.nome} + ' ' + ${v.cognome}">Nome Cognome</option>
+                </select>
+            </label>
+
+            <label>Voto:
+                <div class="stelle-input">
+                    <input type="radio" id="voto-5" name="voto" value="5" required>
+                    <label for="voto-5" title="5 stelle">★</label>
+                    <input type="radio" id="voto-4" name="voto" value="4" required>
+                    <label for="voto-4" title="4 stelle">★</label>
+                    <input type="radio" id="voto-3" name="voto" value="3" required>
+                    <label for="voto-3" title="3 stelle">★</label>
+                    <input type="radio" id="voto-2" name="voto" value="2" required>
+                    <label for="voto-2" title="2 stelle">★</label>
+                    <input type="radio" id="voto-1" name="voto" value="1" required>
+                    <label for="voto-1" title="1 stella">★</label>
+                </div>
+            </label>
+
+            <label>Recensione:
+                <textarea name="testo" rows="3" required></textarea>
+            </label>
+
+            <button type="submit">Invia recensione</button>
+        </form>
+
+        <p th:if="${utenteAutenticato != null and !puoRecensire}">
+            I volontari non possono lasciare recensioni sull'operato dei volontari.
+        </p>
+        <p th:if="${utenteAutenticato == null}">
+            <a th:href="@{/login}">Accedi</a> per lasciare una recensione sull'operato di un volontario.
+        </p>
+
+        <ul class="recensioni-list" th:if="${!#lists.isEmpty(recensioniVolontari)}">
+            <li class="recensione-item" th:each="r : ${recensioniVolontari}">
+                <p class="recensione-autore"
+                   th:text="'Su ' + ${r.volontario.nome} + ' ' + ${r.volontario.cognome} + ' — di ' + ${r.autore.nome} + ' ' + ${r.autore.cognome}">
+                    Su Volontario — di Autore
+                </p>
+                <p class="recensione-stelle">
+                    <span th:each="i : ${#numbers.sequence(1,5)}" th:text="${i <= r.voto} ? '★' : '☆'">★</span>
+                </p>
+                <p class="recensione-testo" th:text="${r.testo}">Testo della recensione</p>
+                <form th:if="${utenteAutenticato != null and r.autore.id == utenteAutenticato.id}"
+                      th:action="@{'/recensioni-volontario/' + ${r.id} + '/elimina'}" method="post">
+                    <button type="submit" class="btn-action btn-elimina">Elimina la mia recensione</button>
+                </form>
+            </li>
+        </ul>
+        <p th:if="${#lists.isEmpty(recensioniVolontari)}">Non ci sono ancora recensioni.</p>
+    </div>
+</body>
+</html>

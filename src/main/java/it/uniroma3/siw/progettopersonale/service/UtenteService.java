@@ -53,6 +53,15 @@ public class UtenteService {
         return credenzialiRepository.findUtentiByRuolo(Ruolo.VOLONTARIO);
     }
 
+    /**
+     * Volontari con i turni gia' caricati (soluzione N+1), per la pagina di
+     * analisi delle prestazioni in /admin.
+     */
+    @Transactional(readOnly = true)
+    public List<Utente> findVolontariConTurni() {
+        return utenteRepository.findByRuoloWithTurni(Ruolo.VOLONTARIO);
+    }
+
     /** Ricerca volontari per nome o cognome. */
     @Transactional(readOnly = true)
     public List<Utente> findVolontariBySearch(String q) {
