@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
 import it.uniroma3.siw.progettopersonale.service.RecensioneService;
@@ -31,6 +32,7 @@ public class AnimaleController {
                           Model model) {
         if (specie != null && !specie.isBlank()) {
             model.addAttribute("animaleList", animaleService.findDisponibiliBySpecie(specie));
+            model.addAttribute("specie", specie);
         } else {
             model.addAttribute("animaleList", animaleService.findDisponibiliBySearch(cerca));
         }

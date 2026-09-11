@@ -1,10 +1,12 @@
 package it.uniroma3.siw.progettopersonale.service;
 
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import it.uniroma3.siw.progettopersonale.exception.AnimaleNonTrovatoException;
 import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
@@ -26,7 +28,6 @@ public class AnimaleService {
         return animaleRepository.findByStato(StatoAnimale.DISPONIBILE);
     }
 
-    /** Ricerca full-text su nome o specie tra gli animali disponibili. */
     @Transactional(readOnly = true)
     public List<Animale> findDisponibiliBySearch(String q) {
         if (q == null || q.isBlank()) {
@@ -35,7 +36,6 @@ public class AnimaleService {
         return animaleRepository.searchByNomeOrSpecieAndStato(q.trim(), StatoAnimale.DISPONIBILE);
     }
 
-    /** Animali disponibili di una specie esatta (link "per specie" in nav e home). */
     @Transactional(readOnly = true)
     public List<Animale> findDisponibiliBySpecie(String specie) {
         return animaleRepository.findByStatoAndSpecieIgnoreCase(StatoAnimale.DISPONIBILE, specie);
@@ -47,7 +47,6 @@ public class AnimaleService {
         return animaleRepository.findDistinctSpecieByStato(StatoAnimale.DISPONIBILE);
     }
 
-    /** Ricerca full-text su nome o specie su tutti gli animali (per il volontario). */
     @Transactional(readOnly = true)
     public Iterable<Animale> findAllBySearch(String q) {
         if (q == null || q.isBlank()) {
@@ -69,12 +68,6 @@ public class AnimaleService {
         return salvato;
     }
 
-    /**
-     * Elimina un animale. Turni, richieste di adozione e recensioni collegate vengono
-     * eliminati automaticamente da JPA grazie a cascade = ALL (evento REMOVE)
-     * dichiarato sulle rispettive associazioni OneToMany nell'entità Animale: non serve
-     * più occuparsene esplicitamente qui.
-     */
     @Transactional
     public void deleteById(Long id) {
         Animale animale = findById(id);

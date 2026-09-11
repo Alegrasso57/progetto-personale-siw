@@ -7,8 +7,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -24,9 +22,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final DataSource dataSource;
+    private final CustomOidcUserService customOidcUserService;
 
-    public SecurityConfig(DataSource dataSource) {
+    public SecurityConfig(DataSource dataSource, CustomOidcUserService customOidcUserService) {
         this.dataSource = dataSource;
+        this.customOidcUserService = customOidcUserService;
     }
 
     @Bean
@@ -40,18 +40,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.authorizeHttpRequests(authorize -> {
             authorize.requestMatchers(HttpMethod.GET,
                             "/", "/css/**", "/js/**", "/images/**", "/webjars/**",
                             "/turni", "/volontari", "/specie", "/recensioni-volontari",
-                            "/register", "/login", "/error")
+                            "/register", "/login", "/error",
+                            "/oauth2/**", "/login/oauth2/**")
                     .permitAll();
 
             authorize.requestMatchers(HttpMethod.GET, "/animali", "/animali/{id:[0-9]+}").permitAll();
@@ -75,6 +71,12 @@ public class SecurityConfig {
             form.passwordParameter("password");
             form.defaultSuccessUrl("/", true);
             form.failureUrl("/login?error=true");
+        });
+
+        httpSecurity.oauth2Login(oauth2 -> {
+            oauth2.loginPage("/login");
+            oauth2.userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidcUserService));
+            oauth2.defaultSuccessUrl("/", true);
         });
 
         httpSecurity.logout(logout -> {

@@ -11,6 +11,7 @@ import it.uniroma3.siw.progettopersonale.model.Credenziali;
 import it.uniroma3.siw.progettopersonale.model.Ruolo;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 import it.uniroma3.siw.progettopersonale.repository.CredenzialiRepository;
+import java.util.UUID;
 
 /** Gestisce le Credenziali di accesso (username, password, ruolo), come il
  *  CredentialsService mostrato a lezione per l'autenticazione. */
@@ -69,5 +70,33 @@ public class CredenzialiService {
         credenziali = credenzialiRepository.save(credenziali);
         logger.info("Nuovo utente registrato: username={}, ruolo={}", username, ruolo);
         return credenziali;
+    }
+
+    /**
+     * Accesso tramite Google (OAuth2, vedi CustomOidcUserService): se esiste
+     * gia' una riga Credenziali con questo username (l'email Google) la
+     * restituisce, altrimenti ne crea una nuova con ruolo ADOTTANTE (chi
+     * vuole registrarsi come volontario deve comunque passare dal form
+     * classico con il codice del centro) e una password casuale cifrata, mai
+     * usata per il login: chi arriva da Google si autentica sempre tramite
+     * Google, non con username/password.
+     */
+    @Transactional
+    public Credenziali trovaOCreaPerOAuth2(String email, String nome, String cognome) {
+        return credenzialiRepository.findByUsername(email).orElseGet(() -> {
+            Utente utente = new Utente();
+            utente.setNome(nome != null && !nome.isBlank() ? nome : "Utente");
+            utente.setCognome(cognome != null && !cognome.isBlank() ? cognome : "Google");
+
+            Credenziali nuoveCredenziali = new Credenziali();
+            nuoveCredenziali.setUsername(email);
+            nuoveCredenziali.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            nuoveCredenziali.setRuolo(Ruolo.ADOTTANTE);
+            nuoveCredenziali.setUtente(utente);
+
+            Credenziali salvate = credenzialiRepository.save(nuoveCredenziali);
+            logger.info("Nuovo utente registrato tramite Google: username={}", email);
+            return salvate;
+        });
     }
 }
