@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
+### Frontend "barra di ricerca animali" (build npm, vedi frontend-ricerca-animali/) ###
+frontend-ricerca-animali/node_modules/
+
 ### Secrets locali ###
 .env
 application-local.properties

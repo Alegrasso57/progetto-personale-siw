@@ -50,7 +50,7 @@ public class SecurityConfig {
                             "/oauth2/**", "/login/oauth2/**")
                     .permitAll();
 
-            authorize.requestMatchers(HttpMethod.GET, "/animali", "/animali/{id:[0-9]+}").permitAll();
+            authorize.requestMatchers(HttpMethod.GET, "/animali", "/animali/{id:[0-9]+}", "/api/animali/ricerca").permitAll();
 
             authorize.requestMatchers(HttpMethod.POST, "/register", "/login").permitAll();
 

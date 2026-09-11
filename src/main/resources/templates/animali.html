@@ -31,40 +31,26 @@
         <div class="page-header">
             <h1 class="page-header-title">Animali disponibili per l'adozione</h1>
 
-            <!-- Barra di ricerca ridotta, spostata in alto a destra -->
-            <form th:action="@{/animali}" method="get" class="search-bar search-bar-compact page-header-end" id="form-ricerca-animali">
-                <input type="text" name="cerca" id="cerca-animali"
-                       th:value="${cerca}"
-                       placeholder="Cerca…"
-                       aria-label="Cerca animale">
-                <button type="submit">Cerca</button>
-            </form>
+            <!-- Barra di ricerca in React (vedi frontend-ricerca-animali/src/ricercaAnimali.jsx):
+                 monta qui il form, e "porta" (React portal) l'elenco sotto dentro
+                 #risultati-animali-root. Ricerca live: aggiorna l'elenco mentre si
+                 scrive, senza ricaricare la pagina e senza bisogno di premere Invio. -->
+            <div id="ricerca-animali-root" class="page-header-end"
+                 th:attr="data-valore-iniziale=${cerca},data-api-ricerca=@{/api/animali/ricerca}"></div>
         </div>
 
-        <div class="card-grid">
-            <div class="animal-card" th:each="animale : ${animaleList}">
-                <span th:switch="${animale.stato.name()}">
-                    <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
-                    <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
-                    <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
-                </span>
-
-                <h3><a th:href="@{'/animali/' + ${animale.id}}" th:text="${animale.nome}">Nome</a></h3>
-
-                <div class="animal-meta">
-                    <span class="animal-tag" th:text="${animale.specie}">Specie</span>
-                    <span class="animal-tag" th:if="${animale.razza != null and !animale.razza.isEmpty()}" th:text="${animale.razza}">Razza</span>
-                    <span class="animal-tag" th:if="${animale.eta != null}" th:text="${animale.eta} + ' anni'">Età</span>
-                    <span class="animal-tag" th:if="${animale.sesso != null and !animale.sesso.isEmpty()}" th:text="${animale.sesso}">Sesso</span>
-                </div>
-
-                <p class="animal-desc"
-                   th:if="${animale.descrizione != null and !animale.descrizione.isEmpty()}"
-                   th:text="${#strings.abbreviate(animale.descrizione, 120)}">Descrizione</p>
-            </div>
-        </div>
-
-        <p th:if="${#lists.isEmpty(animaleList)}">Al momento non ci sono animali disponibili per la ricerca effettuata.</p>
+        <!-- Elenco animali: renderizzato da React (portal dal componente sopra),
+             a partire da questi risultati iniziali (stessa lista di animaleList,
+             solo i campi che servono alla card). -->
+        <div id="risultati-animali-root"></div>
+        <script th:inline="javascript">
+            window.__ANIMALI_INIZIALI__ = /*[[${animaleListJson}]]*/ [];
+        </script>
     </div>
+
+    <!-- Barra di ricerca + elenco animali in React: bundle gia' compilato con
+         Vite (vedi frontend-ricerca-animali/), React incluso, nessuna
+         dipendenza a runtime. -->
+    <script th:src="@{/js/ricercaAnimali.js}"></script>
 </body>
 </html>
