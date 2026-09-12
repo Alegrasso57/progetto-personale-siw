@@ -75,6 +75,27 @@ public class RecensioneVolontarioService {
         return recensione;
     }
 
+    /**
+     * Modifica testo e voto di una recensione esistente: solo l'autore puo'
+     * modificarla (stessa regola di eliminaRecensione). La data di invio non
+     * viene toccata: resta quella della creazione originale.
+     */
+    @Transactional
+    public RecensioneVolontario modificaRecensione(Long recensioneId, Long autoreAutenticatoId,
+                                                     Integer voto, String testo) {
+
+        RecensioneVolontario recensione = findById(recensioneId);
+        if (!recensione.getAutore().getId().equals(autoreAutenticatoId)) {
+            throw new AccessoNonAutorizzatoException("Non puoi modificare la recensione di un altro utente.");
+        }
+
+        recensione.setVoto(voto);
+        recensione.setTesto(testo);
+
+        logger.info("Recensione volontario modificata: id={}", recensioneId);
+        return recensione;
+    }
+
     @Transactional
     public void eliminaRecensione(Long recensioneId, Long autoreAutenticatoId) {
 

@@ -29,9 +29,6 @@
     <div class="container">
         <div class="page-header-center">
             <h1 class="page-header-title">Le mie richieste di adozione</h1>
-
-            <!-- Per creare una nuova richiesta bisogna scegliere un animale specifico:
-                 il bottone porta all'elenco degli animali disponibili -->
             <a th:href="@{/animali}" class="btn-nuovo">+ Nuova richiesta</a>
 
             <!-- Barra di ricerca per nome animale -->
@@ -46,7 +43,7 @@
 
         <div class="card" th:each="richiesta : ${richieste}">
             <span th:switch="${richiesta.stato.name()}">
-                <span th:case="'IN_ATTESA'" class="badge badge-in-valutazione">In attesa</span>
+                <span th:case="'IN ATTESA'" class="badge badge-in-valutazione">In attesa</span>
                 <span th:case="'APPROVATA'" class="badge badge-disponibile">Approvata</span>
                 <span th:case="'RIFIUTATA'" class="badge badge-adottato">Rifiutata</span>
             </span>
@@ -54,15 +51,17 @@
             <p th:text="'Data richiesta : ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
             <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
                th:text="'Motivo della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
-            <div th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
-                <p>Orari proposti per la visita:</p>
-                <ul class="link-list">
-                    <li th:each="turno : ${richiesta.turniPrenotati}">
-                        <span th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Turno</span>
-                        <br>
-                        <span th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</span>
-                    </li>
-                </ul>
+            <div class="richiesta-orari" th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
+                <div class="richiesta-orario" th:each="turno : ${richiesta.turniPrenotati}">
+                    <p class="richiesta-orario-riga"
+                       th:text="'Orari proposti per la visita: ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">
+                        Orari proposti per la visita: Turno
+                    </p>
+                    <p class="richiesta-orario-volontario"
+                       th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">
+                        Volontario
+                    </p>
+                </div>
             </div>
             <div class="actions" th:if="${richiesta.stato.name() == 'IN_ATTESA'}">
                 <a class="btn-action btn-modifica"

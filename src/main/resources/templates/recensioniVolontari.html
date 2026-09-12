@@ -84,10 +84,15 @@
                     <span th:each="i : ${#numbers.sequence(1,5)}" th:text="${i <= r.voto} ? '★' : '☆'">★</span>
                 </p>
                 <p class="recensione-testo" th:text="${r.testo}">Testo della recensione</p>
-                <form th:if="${utenteAutenticato != null and r.autore.id == utenteAutenticato.id}"
-                      th:action="@{'/recensioni-volontario/' + ${r.id} + '/elimina'}" method="post">
-                    <button type="submit" class="btn-action btn-elimina">Elimina la mia recensione</button>
-                </form>
+                <p class="recensione-data" th:if="${r.data != null}"
+                   th:text="${#temporals.format(r.data, 'dd/MM/yyyy')}">gg/mm/aaaa</p>
+
+                <div class="actions" th:if="${utenteAutenticato != null and r.autore.id == utenteAutenticato.id}">
+                    <a class="btn-action btn-modifica" th:href="@{'/recensioni-volontario/' + ${r.id} + '/modifica'}">Modifica</a>
+                    <form th:action="@{'/recensioni-volontario/' + ${r.id} + '/elimina'}" method="post" class="form-inline">
+                        <button type="submit" class="btn-action btn-elimina">Elimina la mia recensione</button>
+                    </form>
+                </div>
             </li>
         </ul>
         <p th:if="${#lists.isEmpty(recensioniVolontari)}">Non ci sono ancora recensioni.</p>

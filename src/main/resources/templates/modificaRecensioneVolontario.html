@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Modifica recensione — Rifugio Amico</title>
+</head>
+<body>
+    <nav class="main-nav">
+        <a th:href="@{/}">Home</a>
+        <div class="nav-item-dropdown">
+            <a th:href="@{/animali}">Animali</a>
+            <div class="nav-dropdown-menu" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
+                <a th:href="@{/volontario/animali}">Gestione animali</a>
+                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+                <a th:href="@{/animali}">Animali da adottare</a>
+            </div>
+        </div>
+        <a th:href="@{/specie}">Specie</a>
+        <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
+        <a th:href="@{/volontari}">Volontari</a>
+        <a th:href="@{/recensioni-volontari}">Recensioni</a>
+    </nav>
+
+    <div class="container">
+        <div class="page-header-center">
+            <h1 class="page-header-title"
+                th:text="'Modifica la recensione su ' + ${volontario.nome} + ' ' + ${volontario.cognome}">
+                Modifica recensione
+            </h1>
+        </div>
+
+        <form th:action="@{'/recensioni-volontario/' + ${recensione.id} + '/modifica'}" method="post" class="form-recensione">
+            <label>Voto:
+                <div class="stelle-input">
+                    <input type="radio" id="voto-5" name="voto" value="5" th:checked="${recensione.voto == 5}" required>
+                    <label for="voto-5" title="5 stelle">★</label>
+                    <input type="radio" id="voto-4" name="voto" value="4" th:checked="${recensione.voto == 4}" required>
+                    <label for="voto-4" title="4 stelle">★</label>
+                    <input type="radio" id="voto-3" name="voto" value="3" th:checked="${recensione.voto == 3}" required>
+                    <label for="voto-3" title="3 stelle">★</label>
+                    <input type="radio" id="voto-2" name="voto" value="2" th:checked="${recensione.voto == 2}" required>
+                    <label for="voto-2" title="2 stelle">★</label>
+                    <input type="radio" id="voto-1" name="voto" value="1" th:checked="${recensione.voto == 1}" required>
+                    <label for="voto-1" title="1 stella">★</label>
+                </div>
+            </label>
+
+            <label>Recensione:
+                <textarea name="testo" rows="3" required th:text="${recensione.testo}"></textarea>
+            </label>
+
+            <button type="submit">Salva modifiche</button>
+        </form>
+
+        <p><a th:href="@{/recensioni-volontari}">Torna alle recensioni</a></p>
+    </div>
+</body>
+</html>

@@ -225,6 +225,32 @@ ul.link-list li:last-child {
     border-bottom: none;
 }
 
+/* ===== Ogni orario proposto per una richiesta di adozione: "Orari proposti
+   per la visita: <data>" su una riga, poi una riga vuota, poi "Volontario: ..."
+   a capo che comincia allo stesso margine sinistro della riga sopra (niente
+   flex/indentazione: sono due <p> normali, uno sotto l'altro). ===== */
+.richiesta-orari {
+    margin: 0.75rem 0;
+}
+
+.richiesta-orario {
+    margin-bottom: 0.75rem;
+}
+
+.richiesta-orario:last-child {
+    margin-bottom: 0;
+}
+
+.richiesta-orario-riga {
+    margin: 0;
+}
+
+/* La "riga di spazio" tra l'orario e il volontario, richiesta esplicitamente:
+   non un semplice "a capo", ma uno spazio vuoto tra le due righe. */
+.richiesta-orario-volontario {
+    margin: 0.9rem 0 0;
+}
+
 /* ===== Griglia di card responsiva: flex-grow/shrink/basis (slide "Dimensioni flex item") ===== */
 .card-grid {
     display: flex;
@@ -452,6 +478,12 @@ a.volontario-nome:hover {
     font-size: 1.1rem;
     letter-spacing: 0.05rem;
     margin: 0.2rem 0;
+}
+
+.recensione-data {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    margin: 0.3rem 0 0;
 }
 
 /* ===== Selettore voto a stelle (radio nascosti + label), senza JavaScript:

@@ -86,6 +86,47 @@ public class RecensioneVolontarioController {
         return "redirect:/recensioni-volontari";
     }
 
+    @GetMapping("/recensioni-volontario/{id}/modifica")
+    public String formModifica(@PathVariable("id") Long id, Model model) {
+        RecensioneVolontario recensione = recensioneVolontarioService.findById(id);
+        Utente autoreAutenticato = utenteAutenticatoCorrente();
+        if (autoreAutenticato == null || !recensione.getAutore().getId().equals(autoreAutenticato.getId())) {
+            throw new AccessoNonAutorizzatoException("Non puoi modificare la recensione di un altro utente.");
+        }
+        model.addAttribute("recensione", recensione);
+        model.addAttribute("volontario", recensione.getVolontario());
+        return "modificaRecensioneVolontario";
+    }
+
+    @PostMapping("/recensioni-volontario/{id}/modifica")
+    public String modificaRecensione(@PathVariable("id") Long id,
+                                      @RequestParam("voto") Integer voto,
+                                      @RequestParam("testo") String testo,
+                                      RedirectAttributes redirectAttributes) {
+
+        Utente autoreAutenticato = utenteAutenticatoCorrente();
+        if (autoreAutenticato == null) {
+            redirectAttributes.addFlashAttribute("erroreRecensione", "Devi accedere per modificare una recensione.");
+            return "redirect:/recensioni-volontari";
+        }
+        if (testo == null || testo.isBlank()) {
+            redirectAttributes.addFlashAttribute("erroreRecensione", "Il testo della recensione è obbligatorio.");
+            return "redirect:/recensioni-volontari";
+        }
+        if (voto == null || voto < 1 || voto > 5) {
+            redirectAttributes.addFlashAttribute("erroreRecensione", "Il voto deve essere compreso tra 1 e 5.");
+            return "redirect:/recensioni-volontari";
+        }
+
+        try {
+            recensioneVolontarioService.modificaRecensione(id, autoreAutenticato.getId(), voto, testo);
+            redirectAttributes.addFlashAttribute("successoRecensione", "Recensione modificata.");
+        } catch (AccessoNonAutorizzatoException e) {
+            redirectAttributes.addFlashAttribute("erroreRecensione", e.getMessage());
+        }
+        return "redirect:/recensioni-volontari";
+    }
+
     @PostMapping("/recensioni-volontario/{id}/elimina")
     public String eliminaRecensione(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         Utente autoreAutenticato = utenteAutenticatoCorrente();

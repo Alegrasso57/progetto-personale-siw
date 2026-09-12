@@ -24,5 +24,4 @@ public interface AnimaleRepository extends CrudRepository<Animale, Long> {
     @Query("SELECT a FROM Animale a WHERE a.stato = :stato AND " +
            "(LOWER(a.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(a.specie) LIKE LOWER(CONCAT('%', :q, '%')))")
     List<Animale> searchByNomeOrSpecieAndStato(@Param("q") String q, @Param("stato") StatoAnimale stato);
-
 }
