@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import it.uniroma3.siw.progettopersonale.model.Utente;
-import it.uniroma3.siw.progettopersonale.service.UtenteService;
+import it.uniroma3.siw.progettopersonale.service.VolontarioService;
 
 /**
  * Controller per la sezione di utilità admin (accessibile ai VOLONTARIO).
@@ -15,10 +15,10 @@ import it.uniroma3.siw.progettopersonale.service.UtenteService;
 @Controller
 public class AdminController {
 
-    private final UtenteService utenteService;
+    private final VolontarioService volontarioService;
 
-    public AdminController(UtenteService utenteService) {
-        this.utenteService = utenteService;
+    public AdminController(VolontarioService volontarioService) {
+        this.volontarioService = volontarioService;
     }
 
     /**
@@ -29,7 +29,7 @@ public class AdminController {
     @GetMapping("/admin/analisi-prestazioni")
     public String analisiPrestazioni(Model model) {
         // Query con JOIN FETCH: una sola query per caricare volontari + turni
-        List<Utente> volontariConTurni = utenteService.findVolontariConTurni();
+        List<Utente> volontariConTurni = volontarioService.findTuttiConTurni();
 
         // Numero totale di turni tra tutti i volontari
         int totaleTurni = volontariConTurni.stream()

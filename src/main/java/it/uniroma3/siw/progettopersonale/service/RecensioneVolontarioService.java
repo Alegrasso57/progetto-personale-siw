@@ -107,4 +107,10 @@ public class RecensioneVolontarioService {
         recensioneVolontarioRepository.deleteById(recensioneId);
         logger.info("Recensione volontario eliminata: id={}", recensioneId);
     }
+
+    /** Numero totale di recensioni sui volontari: usato per il count nella nav bar/home. */
+    @Transactional(readOnly = true)
+    public long count() {
+        return recensioneVolontarioRepository.count();
+    }
 }

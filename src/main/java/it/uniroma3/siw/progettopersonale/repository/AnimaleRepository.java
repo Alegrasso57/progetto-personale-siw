@@ -16,9 +16,6 @@ public interface AnimaleRepository extends CrudRepository<Animale, Long> {
 
     List<Animale> findByStatoAndSpecieIgnoreCase(StatoAnimale stato, String specie);
 
-    @Query("SELECT DISTINCT a.specie FROM Animale a WHERE a.stato = :stato ORDER BY a.specie")
-    List<String> findDistinctSpecieByStato(@Param("stato") StatoAnimale stato);
-
     List<Animale> findByNomeContainingIgnoreCaseOrSpecieContainingIgnoreCase(String nome, String specie);
 
     @Query("SELECT a FROM Animale a WHERE a.stato = :stato AND " +

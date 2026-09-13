@@ -58,17 +58,8 @@ public class AnimaleController {
     @GetMapping("/api/animali/ricerca")
     @ResponseBody
     public List<AnimaleRicercaDTO> ricercaJson(@RequestParam(value = "cerca", required = false) String cerca) {
-        return animaleService.findDisponibiliBySearch(cerca).stream().map(AnimaleRicercaDTO::from).toList();
-    }
-
-    /**
-     * Pagina dedicata alle specie trattate dal sito (diversa dall'elenco
-     * animali): specieDisponibili e' gia' nel Model per ogni pagina, via il
-     * @ModelAttribute di GlobalController.
-     */
-    @GetMapping("/specie")
-    public String elencoSpecie() {
-        return "specie";
+        List<Animale> risultati = animaleService.findDisponibiliBySearch(cerca);
+        return risultati.stream().map(AnimaleRicercaDTO::from).toList();
     }
 
     @GetMapping("/animali/{id}")

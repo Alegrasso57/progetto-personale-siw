@@ -48,29 +48,6 @@ public class UtenteService {
                 .orElse(null);
     }
 
-    @Transactional(readOnly = true)
-    public List<Utente> findVolontari() {
-        return credenzialiRepository.findUtentiByRuolo(Ruolo.VOLONTARIO);
-    }
-
-    /**
-     * Volontari con i turni gia' caricati (soluzione N+1), per la pagina di
-     * analisi delle prestazioni in /admin.
-     */
-    @Transactional(readOnly = true)
-    public List<Utente> findVolontariConTurni() {
-        return utenteRepository.findByRuoloWithTurni(Ruolo.VOLONTARIO);
-    }
-
-    /** Ricerca volontari per nome o cognome. */
-    @Transactional(readOnly = true)
-    public List<Utente> findVolontariBySearch(String q) {
-        if (q == null || q.isBlank()) {
-            return findVolontari();
-        }
-        return credenzialiRepository.searchUtentiByNomeOrCognomeAndRuolo(q.trim(), Ruolo.VOLONTARIO);
-    }
-
     /**
      * Aggiorna i dati anagrafici (nome, cognome) dell'utente indicato.
      * Username, password e ruolo non sono modificabili da qui: sono gestiti dalle

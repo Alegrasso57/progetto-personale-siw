@@ -10,13 +10,7 @@
     <title>Analisi delle prestazioni — Rifugio Amico</title>
 </head>
 <body>
-    <nav class="main-nav">
-        <a th:href="@{/}">Home</a>
-        <a th:href="@{/specie}">Specie</a>
-        <a th:href="@{/volontario/turni}">Turni</a>
-        <a th:href="@{/volontari}">Volontari</a>
-        <a th:href="@{/recensioni-volontari}">Recensioni</a>
-    </nav>
+    <nav th:replace="~{fragments/nav :: navbarCompleta}"></nav>
 
     <div class="container">
         <h1>Analisi delle prestazioni</h1>

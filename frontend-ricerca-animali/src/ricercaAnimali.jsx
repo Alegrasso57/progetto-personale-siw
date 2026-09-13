@@ -79,7 +79,7 @@ function ElencoAnimali({ animali }) {
     );
 }
 
-function AppRicercaAnimali({ valoreIniziale, animaliIniziali, apiRicerca, contenitoreRisultati }) {
+function AppRicercaAnimali({ valoreIniziale, animaliIniziali, apiRicerca, ordina, contenitoreRisultati }) {
     const [testo, setTesto] = useState(valoreIniziale || '');
     const [animali, setAnimali] = useState(animaliIniziali || []);
     const numeroRichiesta = useRef(0);
@@ -97,7 +97,17 @@ function AppRicercaAnimali({ valoreIniziale, animaliIniziali, apiRicerca, conten
         const idRichiesta = ++numeroRichiesta.current;
 
         const timer = setTimeout(() => {
-            const url = apiRicerca + (testoPulito !== '' ? '?cerca=' + encodeURIComponent(testoPulito) : '');
+            const parametri = new URLSearchParams();
+            if (testoPulito !== '') {
+                parametri.set('cerca', testoPulito);
+            }
+            if (ordina) {
+                // Mantiene lo stesso ordinamento scelto nella pagina (link
+                // "Ordina per") anche nei risultati aggiornati dalla ricerca live.
+                parametri.set('ordina', ordina);
+            }
+            const query = parametri.toString();
+            const url = apiRicerca + (query !== '' ? '?' + query : '');
             fetch(url)
                 .then((risposta) => {
                     if (!risposta.ok) {
@@ -118,7 +128,7 @@ function AppRicercaAnimali({ valoreIniziale, animaliIniziali, apiRicerca, conten
         }, DEBOUNCE_MS);
 
         return () => clearTimeout(timer);
-    }, [testo, apiRicerca]);
+    }, [testo, apiRicerca, ordina]);
 
     function handleSubmit(evento) {
         // La ricerca e' gia' "live" ad ogni carattere digitato: il submit non
@@ -155,6 +165,7 @@ function avvia() {
 
     const valoreIniziale = contenitoreForm.dataset.valoreIniziale || '';
     const apiRicerca = contenitoreForm.dataset.apiRicerca || '/api/animali/ricerca';
+    const ordina = contenitoreForm.dataset.ordina || '';
     const animaliIniziali = window.__ANIMALI_INIZIALI__ || [];
 
     createRoot(contenitoreForm).render(
@@ -162,6 +173,7 @@ function avvia() {
             valoreIniziale={valoreIniziale}
             animaliIniziali={animaliIniziali}
             apiRicerca={apiRicerca}
+            ordina={ordina}
             contenitoreRisultati={contenitoreRisultati}
         />
     );

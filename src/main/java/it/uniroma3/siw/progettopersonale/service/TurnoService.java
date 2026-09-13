@@ -158,4 +158,10 @@ public class TurnoService {
         turnoRepository.deleteById(id);
         logger.info("Turno eliminato: id={}", id);
     }
+
+    /** Numero totale di turni dichiarati: usato per il count nella nav bar/home. */
+    @Transactional(readOnly = true)
+    public long count() {
+        return turnoRepository.count();
+    }
 }

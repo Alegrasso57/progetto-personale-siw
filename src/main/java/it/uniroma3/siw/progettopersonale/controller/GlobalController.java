@@ -7,7 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
+import it.uniroma3.siw.progettopersonale.service.RecensioneVolontarioService;
+import it.uniroma3.siw.progettopersonale.service.SpecieService;
+import it.uniroma3.siw.progettopersonale.service.TurnoService;
 import it.uniroma3.siw.progettopersonale.service.UtenteService;
+import it.uniroma3.siw.progettopersonale.service.VolontarioService;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 
 import java.util.List;
@@ -24,10 +28,20 @@ public class GlobalController {
 
     private final AnimaleService animaleService;
     private final UtenteService utenteService;
+    private final TurnoService turnoService;
+    private final RecensioneVolontarioService recensioneVolontarioService;
+    private final SpecieService specieService;
+    private final VolontarioService volontarioService;
 
-    public GlobalController(AnimaleService animaleService, UtenteService utenteService) {
+    public GlobalController(AnimaleService animaleService, UtenteService utenteService,
+                             TurnoService turnoService, RecensioneVolontarioService recensioneVolontarioService,
+                             SpecieService specieService, VolontarioService volontarioService) {
         this.animaleService = animaleService;
         this.utenteService = utenteService;
+        this.turnoService = turnoService;
+        this.recensioneVolontarioService = recensioneVolontarioService;
+        this.specieService = specieService;
+        this.volontarioService = volontarioService;
     }
 
     /** L'utente autenticato (null se non autenticato), letto dal Principal nel SecurityContextHolder. */
@@ -44,7 +58,7 @@ public class GlobalController {
     /** Le specie di animali disponibili, per il menu di navigazione e la home. */
     @ModelAttribute("specieDisponibili")
     public List<String> getSpecieDisponibili() {
-        return animaleService.findSpecieDisponibili();
+        return specieService.findDisponibili();
     }
 
     /**
@@ -59,5 +73,31 @@ public class GlobalController {
             return null;
         }
         return utenteService.findByUsername(userDetails.getUsername());
+    }
+
+    
+    @ModelAttribute("numeroAnimali")
+    public long getNumeroAnimali() {
+        return animaleService.count();
+    }
+
+    @ModelAttribute("numeroVolontari")
+    public long getNumeroVolontari() {
+        return volontarioService.count();
+    }
+
+    @ModelAttribute("numeroTurni")
+    public long getNumeroTurni() {
+        return turnoService.count();
+    }
+
+    @ModelAttribute("numeroRecensioniVolontari")
+    public long getNumeroRecensioniVolontari() {
+        return recensioneVolontarioService.count();
+    }
+
+    @ModelAttribute("numeroSpecie")
+    public int getNumeroSpecie() {
+        return getSpecieDisponibili().size();
     }
 }

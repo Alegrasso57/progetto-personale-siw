@@ -19,6 +19,7 @@ import it.uniroma3.siw.progettopersonale.model.Ruolo;
 import it.uniroma3.siw.progettopersonale.model.Utente;
 import it.uniroma3.siw.progettopersonale.service.RecensioneVolontarioService;
 import it.uniroma3.siw.progettopersonale.service.UtenteService;
+import it.uniroma3.siw.progettopersonale.service.VolontarioService;
 
 /**
  * Pagina dedicata alle recensioni sull'operato dei volontari: elenco di tutte
@@ -32,17 +33,20 @@ public class RecensioneVolontarioController {
 
     private final RecensioneVolontarioService recensioneVolontarioService;
     private final UtenteService utenteService;
+    private final VolontarioService volontarioService;
 
     public RecensioneVolontarioController(RecensioneVolontarioService recensioneVolontarioService,
-                                           UtenteService utenteService) {
+                                           UtenteService utenteService,
+                                           VolontarioService volontarioService) {
         this.recensioneVolontarioService = recensioneVolontarioService;
         this.utenteService = utenteService;
+        this.volontarioService = volontarioService;
     }
 
     @GetMapping("/recensioni-volontari")
     public String elenco(Model model) {
         model.addAttribute("recensioniVolontari", recensioneVolontarioService.findTutte());
-        model.addAttribute("volontari", utenteService.findVolontari());
+        model.addAttribute("volontari", volontarioService.findTutti());
 
         Utente utenteAutenticato = utenteAutenticatoCorrente();
         boolean puoRecensire = utenteAutenticato != null

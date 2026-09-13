@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+    Nav bar unica per tutte le pagine "complete" del sito (fa eccezione solo
+    la nav minima di login/register/pagine di errore, che mostra solo "Home").
+    Prima era duplicata identica in ~15 template diversi: da qui in poi si
+    modifica in un solo posto (questo file) e il cambiamento vale ovunque.
+
+    I count tra parentesi (es. "Animali (12)") arrivano da GlobalController
+    (vedi controller/GlobalController.java), che li rende disponibili in OGNI
+    pagina come attributi del Model: numeroAnimali, numeroVolontari,
+    numeroTurni, numeroRecensioniVolontari, numeroSpecie. Qui sotto "Animali"
+    li usa gia', come esempio dal vivo; per farlo su un'altra voce basta
+    scrivere lo stesso th:text con l'attributo giusto.
+-->
+<nav th:fragment="navbarCompleta" class="main-nav">
+    <a th:href="@{/}">Home</a>
+    <div class="nav-item-dropdown">
+        <a th:href="@{/animali}">Animali</a>
+        <div class="nav-dropdown-menu" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
+            <a th:href="@{/volontario/animali}">Gestione animali</a>
+            <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
+            <a th:href="@{/animali}">Animali da adottare</a>
+        </div>
+    </div>
+    <a th:href="@{/specie}">Specie</a>
+    <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
+    <a th:href="@{/volontari}">Volontari</a>
+    <a th:href="@{/recensioni-volontari}">Recensioni</a>
+</nav>
+</body>
+</html>

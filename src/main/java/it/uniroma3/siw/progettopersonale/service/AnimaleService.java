@@ -41,12 +41,6 @@ public class AnimaleService {
         return animaleRepository.findByStatoAndSpecieIgnoreCase(StatoAnimale.DISPONIBILE, specie);
     }
 
-    /** Specie presenti tra gli animali disponibili, per il menu e la home. */
-    @Transactional(readOnly = true)
-    public List<String> findSpecieDisponibili() {
-        return animaleRepository.findDistinctSpecieByStato(StatoAnimale.DISPONIBILE);
-    }
-
     @Transactional(readOnly = true)
     public Iterable<Animale> findAllBySearch(String q) {
         if (q == null || q.isBlank()) {
@@ -73,5 +67,11 @@ public class AnimaleService {
         Animale animale = findById(id);
         animaleRepository.delete(animale);
         logger.info("Animale eliminato: id={}", id);
+    }
+
+    /** Numero totale di animali (di qualunque stato): usato per il count nella nav bar/home. */
+    @Transactional(readOnly = true)
+    public long count() {
+        return animaleRepository.count();
     }
 }

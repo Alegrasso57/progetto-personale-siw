@@ -11,21 +11,7 @@
     <title>Recensioni sui volontari — Rifugio Amico</title>
 </head>
 <body>
-    <nav class="main-nav">
-        <a th:href="@{/}">Home</a>
-        <div class="nav-item-dropdown">
-            <a th:href="@{/animali}">Animali</a>
-            <div class="nav-dropdown-menu" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
-                <a th:href="@{/volontario/animali}">Gestione animali</a>
-                <a th:href="@{/volontario/richieste}">Richieste di adozione da valutare</a>
-                <a th:href="@{/animali}">Animali da adottare</a>
-            </div>
-        </div>
-        <a th:href="@{/specie}">Specie</a>
-        <a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Turni</a>
-        <a th:href="@{/volontari}">Volontari</a>
-        <a th:href="@{/recensioni-volontari}">Recensioni</a>
-    </nav>
+    <nav th:replace="~{fragments/nav :: navbarCompleta}"></nav>
 
     <div class="container">
         <div class="page-header-center">
@@ -68,7 +54,6 @@
         </form>
 
         <p th:if="${utenteAutenticato != null and !puoRecensire}">
-            I volontari non possono lasciare recensioni sull'operato dei volontari.
         </p>
         <p th:if="${utenteAutenticato == null}">
             <a th:href="@{/login}">Accedi</a> per lasciare una recensione sull'operato di un volontario.
