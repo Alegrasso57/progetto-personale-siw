@@ -1,14 +1,16 @@
 package it.uniroma3.siw.progettopersonale.controller;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import it.uniroma3.siw.progettopersonale.model.Ruolo;
 
 /**
  * Oggetto di comando (non persistito, nessuna annotazione @Entity) per il form
- * di registrazione: raccoglie in un solo oggetto i dati che finiranno su due
- * entita' diverse (Utente e Credenziali), piu' il codice del centro, che non e'
- * un dato persistito da nessuna parte ma serve solo per validare la richiesta.
+ * di registrazione.
+ *
+ * Esiste separato dall'entita' Utente perche' qui la password e' obbligatoria
+ * (@NotBlank), mentre sull'entita' non puo' esserlo: la form di modifica del
+ * profilo invia solo nome e cognome, e un vincolo sulla password la farebbe
+ * fallire. Il ruolo non c'e': chi si registra e' sempre un UTENTE normale,
+ * l'amministratore viene creato all'avvio da DataInitializer.
  */
 public class RegistrazioneForm {
 
@@ -23,11 +25,6 @@ public class RegistrazioneForm {
 
     @NotBlank(message = "Il cognome è obbligatorio")
     private String cognome;
-
-    @NotNull(message = "Seleziona il ruolo con cui registrarti")
-    private Ruolo ruolo;
-
-    private String codiceVolontario;
 
     public String getUsername() {
         return username;
@@ -59,21 +56,5 @@ public class RegistrazioneForm {
 
     public void setCognome(String cognome) {
         this.cognome = cognome;
-    }
-
-    public Ruolo getRuolo() {
-        return ruolo;
-    }
-
-    public void setRuolo(Ruolo ruolo) {
-        this.ruolo = ruolo;
-    }
-
-    public String getCodiceVolontario() {
-        return codiceVolontario;
-    }
-
-    public void setCodiceVolontario(String codiceVolontario) {
-        this.codiceVolontario = codiceVolontario;
     }
 }

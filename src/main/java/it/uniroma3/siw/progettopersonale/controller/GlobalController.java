@@ -6,66 +6,42 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import it.uniroma3.siw.progettopersonale.service.AnimaleService;
-import it.uniroma3.siw.progettopersonale.service.RecensioneVolontarioService;
-import it.uniroma3.siw.progettopersonale.service.SpecieService;
-import it.uniroma3.siw.progettopersonale.service.TurnoService;
-import it.uniroma3.siw.progettopersonale.service.UtenteService;
-import it.uniroma3.siw.progettopersonale.service.VolontarioService;
-import it.uniroma3.siw.progettopersonale.model.Utente;
 
-import java.util.List;
+import it.uniroma3.siw.progettopersonale.model.Utente;
+import it.uniroma3.siw.progettopersonale.service.UtenteService;
 
 /**
- * Rende disponibili a tutti i template alcuni dati comuni, secondo il pattern
- * mostrato a lezione (slide "Autenticazione e autorizzazione", "Ottenere info
- * sull'utente loggato"): un @ControllerAdvice con metodi @ModelAttribute, cosi'
- * ogni template puo' leggerli senza che ogni singolo controller debba passarli
- * esplicitamente nel Model.
+ * Rende disponibili a TUTTI i template i dati sull'utente autenticato, secondo
+ * il pattern visto a lezione (slide "Autenticazione e autorizzazione",
+ * "Ottenere info sull'utente loggato"): un @ControllerAdvice con metodi
+ * @ModelAttribute, cosi' ogni template li legge senza che ogni controller
+ * debba passarli esplicitamente nel Model.
+ *
+ * E' anche il punto giusto dove mettere eventuali dati comuni a tutte le
+ * pagine (per esempio dei count da mostrare nella nav bar): basta aggiungere
+ * un metodo annotato con @ModelAttribute("nome") e il template lo legge
+ * con ${nome}.
  */
 @ControllerAdvice
 public class GlobalController {
 
-    private final AnimaleService animaleService;
     private final UtenteService utenteService;
-    private final TurnoService turnoService;
-    private final RecensioneVolontarioService recensioneVolontarioService;
-    private final SpecieService specieService;
-    private final VolontarioService volontarioService;
 
-    public GlobalController(AnimaleService animaleService, UtenteService utenteService,
-                             TurnoService turnoService, RecensioneVolontarioService recensioneVolontarioService,
-                             SpecieService specieService, VolontarioService volontarioService) {
-        this.animaleService = animaleService;
+    public GlobalController(UtenteService utenteService) {
         this.utenteService = utenteService;
-        this.turnoService = turnoService;
-        this.recensioneVolontarioService = recensioneVolontarioService;
-        this.specieService = specieService;
-        this.volontarioService = volontarioService;
     }
 
-    /** L'utente autenticato (null se non autenticato), letto dal Principal nel SecurityContextHolder. */
+    /** L'utente autenticato secondo Spring Security (null se anonimo). */
     @ModelAttribute("userDetails")
     public UserDetails getUser() {
-        UserDetails user = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            user = (UserDetails) authentication.getPrincipal();
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return null;
         }
-        return user;
+        return (UserDetails) authentication.getPrincipal();
     }
 
-    /** Le specie di animali disponibili, per il menu di navigazione e la home. */
-    @ModelAttribute("specieDisponibili")
-    public List<String> getSpecieDisponibili() {
-        return specieService.findDisponibili();
-    }
-
-    /**
-     * I dati anagrafici (Utente) dell'utente autenticato, null se anonimo: utile nei
-     * template per confronti sull'id (es. "e' una mia recensione?"), oltre a
-     * ${userDetails.username}.
-     */
+    
     @ModelAttribute("utenteAutenticato")
     public Utente getUtenteAutenticato() {
         UserDetails userDetails = getUser();
@@ -73,31 +49,5 @@ public class GlobalController {
             return null;
         }
         return utenteService.findByUsername(userDetails.getUsername());
-    }
-
-    
-    @ModelAttribute("numeroAnimali")
-    public long getNumeroAnimali() {
-        return animaleService.count();
-    }
-
-    @ModelAttribute("numeroVolontari")
-    public long getNumeroVolontari() {
-        return volontarioService.count();
-    }
-
-    @ModelAttribute("numeroTurni")
-    public long getNumeroTurni() {
-        return turnoService.count();
-    }
-
-    @ModelAttribute("numeroRecensioniVolontari")
-    public long getNumeroRecensioniVolontari() {
-        return recensioneVolontarioService.count();
-    }
-
-    @ModelAttribute("numeroSpecie")
-    public int getNumeroSpecie() {
-        return getSpecieDisponibili().size();
     }
 }

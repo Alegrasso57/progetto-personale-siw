@@ -1,5 +1,6 @@
 package it.uniroma3.siw.progettopersonale.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ public class AnimaleService {
         return animaleRepository.findByNomeContainingIgnoreCaseOrSpecieContainingIgnoreCase(q.trim(), q.trim());
     }
 
-
     @Transactional(readOnly = true)
     public Animale findById(Long id) {
         return animaleRepository.findById(id).orElseThrow(() -> new AnimaleNonTrovatoException(id));
@@ -69,9 +69,13 @@ public class AnimaleService {
         logger.info("Animale eliminato: id={}", id);
     }
 
-    /** Numero totale di animali (di qualunque stato): usato per il count nella nav bar/home. */
+    /**
+     * Tutti gli animali con le richieste di adozione gia' caricate in una sola
+     * query (JOIN FETCH): usato dalla pagina che dimostra il problema N+1
+     * sulla relazione uno-a-molti Animale -> RichiestaAdozione.
+     */
     @Transactional(readOnly = true)
-    public long count() {
-        return animaleRepository.count();
+    public List<Animale> findTuttiConRichieste() {
+        return new ArrayList<>(animaleRepository.findTuttiConRichieste());
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Rifugio Amico – il centro di adozione per ogni amico animale. Scopri gli animali disponibili, i turni dei volontari e richiedi un'adozione.">
+    <meta name="description" content="Rifugio Amico – il centro di adozione per ogni amico animale. Scopri gli animali disponibili e richiedi un'adozione.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,14 +22,13 @@
             <div class="hero-content">
                 <h1>Benvenuto al Rifugio Amico</h1>
                 <p>Centro con l'obiettivo di procurare un posto sicuro per ogni amico animale.
-                   Scopri chi cerca sostentamento navigando sul sito, e fissa un appuntamento
-                   con i volontari per conoscere un potenziale nuovo compagno.</p>
+                   Scopri chi cerca sostentamento navigando sul sito, scegli uno degli orari di
+                   visita disponibili e invia la tua richiesta di adozione.</p>
 
                 <ul class="link-list">
                     <li><a th:href="@{/animali}">Animali in adozione</a></li>
-                    <li><a th:href="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty} ? @{/volontario/turni} : @{/turni}">Programmazione turni</a></li>
-                    <li><a th:href="@{/volontari}">I nostri volontari</a></li>
-                    <li><a th:href="@{/recensioni-volontari}">Recensioni sui volontari</a></li>
+                    <li><a th:href="@{/specie}">Specie che accogliamo</a></li>
+                    <li><a th:href="@{/recensioni}">Recensioni sul centro</a></li>
                 </ul>
             </div>
         </section>
@@ -38,11 +37,11 @@
         <div th:if="${userDetails == null}">
             <p>
                 <a th:href="@{/login}">Accedi</a> o <a th:href="@{/register}">Registrati</a>
-                per adottare o per organizzare gli incontri.
+                per adottare un animale o per lasciare una recensione.
             </p>
         </div>
 
-        <!-- Sezione autenticato: bentornato + logout senza banner bianco -->
+        <!-- Sezione autenticato: bentornato + logout -->
         <div th:if="${userDetails != null}">
             <div class="auth-bar">
                 <p class="welcome-text">Bentornat* <span th:text="${userDetails.username}">utente</span>!</p>
@@ -53,19 +52,26 @@
             </div>
         </div>
 
-        <!-- Area adottante -->
-        <div class="admin-section" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'ADOTTANTE'].empty}">
-            <h2>Area adottante</h2>
+        <!-- Area utente normale -->
+        <div class="admin-section"
+             th:if="${userDetails != null and !userDetails.authorities.?[authority == 'UTENTE'].empty}">
+            <h2>La tua area</h2>
             <ul class="link-list">
                 <li><a th:href="@{/le-mie-richieste}">Le mie richieste di adozione</a></li>
+                <li><a th:href="@{/animali}">Scopri gli animali in adozione</a></li>
+                <li><a th:href="@{/recensioni}">Recensioni sul centro</a></li>
             </ul>
         </div>
 
-        <!-- Area volontario -->
-        <div class="admin-section" th:if="${userDetails != null and !userDetails.authorities.?[authority == 'VOLONTARIO'].empty}">
-            <h2>Area volontario</h2>
+        <!-- Area amministratore -->
+        <div class="admin-section"
+             th:if="${userDetails != null and !userDetails.authorities.?[authority == 'ADMIN'].empty}">
+            <h2>Area amministratore</h2>
             <ul class="link-list">
-                <li><a th:href="@{/admin/analisi-prestazioni}">Analisi delle prestazioni</a></li>
+                <li><a th:href="@{/admin/animali}">Gestione animali</a></li>
+                <li><a th:href="@{/admin/turni}">Turni: le mie disponibilità</a></li>
+                <li><a th:href="@{/admin/richieste}">Richieste di adozione da valutare</a></li>
+                <li><a th:href="@{/admin/analisi-prestazioni}">Analisi delle prestazioni </a></li>
             </ul>
         </div>
     </div>

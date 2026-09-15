@@ -15,31 +15,27 @@
     <div class="container">
         <div class="page-header">
             <h1 class="page-header-title">Gestione animali</h1>
-            <a th:href="@{/volontario/animali/nuovo}" class="btn-nuovo page-header-end">+ Nuovo animale</a>
+            <a th:href="@{/admin/animali/nuovo}" class="btn-nuovo page-header-end">+ Nuovo animale</a>
         </div>
 
         <!-- Barra di ricerca server-side -->
-        <form th:action="@{/volontario/animali}" method="get" class="search-bar" id="form-ricerca-animali-vol">
-            <input type="text" name="cerca" id="cerca-animali-vol"
+        <form th:action="@{/admin/animali}" method="get" class="search-bar" id="form-ricerca-animali-admin">
+            <input type="text" name="cerca" id="cerca-animali-admin"
                    th:value="${cerca}"
                    placeholder="Cerca per nome o specie…"
                    aria-label="Cerca animale">
             <button type="submit">Cerca</button>
         </form>
 
-        <!-- Lista animali: più spazio tra le card, nessun ingrandimento in hover -->
         <div class="animal-card animal-card-manage" th:each="animale : ${animaleList}">
-            <!-- Badge stato -->
             <span th:switch="${animale.stato.name()}">
                 <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
                 <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
                 <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
             </span>
 
-            <!-- Nome -->
             <h3 th:text="${animale.nome}">Nome</h3>
 
-            <!-- Caratteristiche sotto al nome -->
             <div class="animal-meta">
                 <span class="animal-tag" th:text="${animale.specie}">Specie</span>
                 <span class="animal-tag" th:if="${animale.razza != null and !animale.razza.isEmpty()}" th:text="${animale.razza}">Razza</span>
@@ -47,17 +43,15 @@
                 <span class="animal-tag" th:if="${animale.sesso != null and !animale.sesso.isEmpty()}" th:text="${animale.sesso}">Sesso</span>
             </div>
 
-            <!-- Descrizione -->
             <p class="animal-desc"
                th:if="${animale.descrizione != null and !animale.descrizione.isEmpty()}"
                th:text="${animale.descrizione}">Descrizione</p>
 
-            <!-- Azioni: Modifica e Elimina con stessa dimensione, nessun banner bianco -->
             <div class="actions">
                 <a class="btn-action btn-modifica"
-                   th:href="@{'/volontario/animali/' + ${animale.id} + '/modifica'}">Modifica</a>
+                   th:href="@{'/admin/animali/' + ${animale.id} + '/modifica'}">Modifica</a>
 
-                <form th:action="@{'/volontario/animali/' + ${animale.id} + '/elimina'}"
+                <form th:action="@{'/admin/animali/' + ${animale.id} + '/elimina'}"
                       method="post" class="form-inline">
                     <button type="submit" class="btn-action btn-elimina"
                             onclick="return confirm('Sicuro di voler eliminare questo animale?')">Elimina</button>

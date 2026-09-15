@@ -13,7 +13,7 @@
 <div class="container">
     <h1>Animale</h1>
 
-    <form th:action="@{/volontario/animali}" method="post" th:object="${animale}">
+    <form th:action="@{/admin/animali}" method="post" th:object="${animale}">
         <div th:if="${#fields.hasGlobalErrors()}">
             <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
         </div>
@@ -47,7 +47,7 @@
         <button type="submit">Salva</button>
     </form>
 
-    <p><a th:href="@{/volontario/animali}">Annulla</a></p>
+    <p><a th:href="@{/admin/animali}">Annulla</a></p>
 </div>
 </body>
 </html>

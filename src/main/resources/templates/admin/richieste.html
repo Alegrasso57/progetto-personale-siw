@@ -15,11 +15,11 @@
     <div class="container">
         <h1>Richieste di adozione da valutare</h1>
 
-        <!-- Barra di ricerca per nome animale -->
-        <form th:action="@{/volontario/richieste}" method="get" class="search-bar" id="form-ricerca-richieste">
+        <!-- Barra di ricerca per nome animale o utente -->
+        <form th:action="@{/admin/richieste}" method="get" class="search-bar" id="form-ricerca-richieste">
             <input type="text" name="cerca" id="cerca-richieste"
                    th:value="${cerca}"
-                   placeholder="Cerca per nome animale o adottante…"
+                   placeholder="Cerca per nome animale o utente…"
                    aria-label="Cerca richiesta">
             <button type="submit">Cerca</button>
         </form>
@@ -32,27 +32,24 @@
             </span>
 
             <p th:text="'Animale: ' + ${richiesta.animale.nome}">Animale</p>
-            <p th:text="'Adottante: ' + ${richiesta.adottante.nome} + ' ' + ${richiesta.adottante.cognome}">Adottante</p>
+            <p th:text="'Richiesta da: ' + ${richiesta.adottante.nome} + ' ' + ${richiesta.adottante.cognome}">Utente</p>
             <p th:text="'Data richiesta: ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
-            <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
-               th:text="'Motivazione della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
 
-            <div th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
-                <p>Orari proposti per la visita:</p>
-                <ul class="link-list">
-                    <li th:each="turno : ${richiesta.turniPrenotati}"
-                        th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">
-                        Turno
-                    </li>
-                </ul>
-            </div>
+            <!-- Lo slot che l'utente ha scelto fra quelli che hai reso disponibili -->
+            <p th:if="${richiesta.turno != null}"
+               th:text="'Orario richiesto per la visita: ' + ${#temporals.format(richiesta.turno.data, 'dd/MM/yyyy')}
+                        + ' ore ' + ${#temporals.format(richiesta.turno.oraInizio, 'HH:mm')}
+                        + ' - ' + ${#temporals.format(richiesta.turno.oraFine, 'HH:mm')}">Orario</p>
+
+            <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
+               th:text="'Motivazione: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
 
             <div class="actions" th:if="${richiesta.stato.name() == 'IN_ATTESA'}">
-                <form th:action="@{'/volontario/richieste/' + ${richiesta.id} + '/approva'}"
+                <form th:action="@{'/admin/richieste/' + ${richiesta.id} + '/approva'}"
                       method="post" class="form-inline">
                     <button type="submit" class="btn-action btn-modifica">Approva</button>
                 </form>
-                <form th:action="@{'/volontario/richieste/' + ${richiesta.id} + '/rifiuta'}"
+                <form th:action="@{'/admin/richieste/' + ${richiesta.id} + '/rifiuta'}"
                       method="post" class="form-inline">
                     <button type="submit" class="btn-action btn-elimina">Rifiuta</button>
                 </form>

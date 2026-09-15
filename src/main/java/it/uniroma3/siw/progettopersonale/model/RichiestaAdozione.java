@@ -7,12 +7,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Richiesta di adozione inviata da un Utente per un Animale, con lo slot
+ * orario scelto fra quelli messi a disposizione dall'admin.
+ * L'admin la approva o la rifiuta (vedi RichiestaAdozioneService).
+ */
 @Entity
 public class RichiestaAdozione {
 
@@ -28,15 +31,21 @@ public class RichiestaAdozione {
 
     private String motivazione;
 
+    /** L'utente che ha inviato la richiesta. */
     @ManyToOne
     private Utente adottante;
 
     @ManyToOne
     private Animale animale;
 
-    /** Turni (disponibilita' dichiarate dai volontari) prenotati dall'adottante per questa richiesta. */
-    @OneToMany(mappedBy = "richiestaAdozione")
-    private List<Turno> turniPrenotati = new ArrayList<>();
+    /**
+     * Lo slot prenotato per la visita. Lato INVERSO della relazione: la chiave
+     * esterna sta su Turno (vedi Turno.richiestaAdozione), qui serve solo a
+     * leggere comodamente il turno dal lato della richiesta, per esempio nei
+     * template con ${richiesta.turno.data}.
+     */
+    @OneToOne(mappedBy = "richiestaAdozione")
+    private Turno turno;
 
     public RichiestaAdozione() {
     }
@@ -89,12 +98,12 @@ public class RichiestaAdozione {
         this.animale = animale;
     }
 
-    public List<Turno> getTurniPrenotati() {
-        return turniPrenotati;
+    public Turno getTurno() {
+        return turno;
     }
 
-    public void setTurniPrenotati(List<Turno> turniPrenotati) {
-        this.turniPrenotati = turniPrenotati;
+    public void setTurno(Turno turno) {
+        this.turno = turno;
     }
 
     @Override

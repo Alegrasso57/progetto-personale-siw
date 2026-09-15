@@ -7,25 +7,22 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
-import it.uniroma3.siw.progettopersonale.model.Credenziali;
-import it.uniroma3.siw.progettopersonale.service.CredenzialiService;
+import it.uniroma3.siw.progettopersonale.model.Utente;
+import it.uniroma3.siw.progettopersonale.service.UtenteService;
 
 /**
- * Al primo accesso con Google, crea (o ritrova) la riga Credenziali/Utente
- * corrispondente all'email Google (vedi CredenzialiService.trovaOCreaPerOAuth2),
- * cosi' che chi accede con Google abbia comunque un profilo Utente nel
- * database, come chi si registra con il form classico. Il ruolo assegnato a
- * un nuovo accesso Google e' sempre ADOTTANTE: diventare volontario richiede
- * comunque la registrazione classica con il codice del centro (vedi
- * CredenzialiService.CODICE_VOLONTARIO).
+ * Al primo accesso con Google crea (o ritrova) l'Utente corrispondente
+ * all'email Google, cosi' chi entra con Google ha un profilo nel database
+ * come chi si registra con la form classica. Il ruolo assegnato e' sempre
+ * UTENTE: l'amministratore e' creato all'avvio da DataInitializer.
  */
 @Service
 public class CustomOidcUserService extends OidcUserService {
 
-    private final CredenzialiService credenzialiService;
+    private final UtenteService utenteService;
 
-    public CustomOidcUserService(CredenzialiService credenzialiService) {
-        this.credenzialiService = credenzialiService;
+    public CustomOidcUserService(UtenteService utenteService) {
+        this.utenteService = utenteService;
     }
 
     @Override
@@ -36,10 +33,10 @@ public class CustomOidcUserService extends OidcUserService {
         String nome = oidcUser.getGivenName();
         String cognome = oidcUser.getFamilyName();
 
-        Credenziali credenziali = credenzialiService.trovaOCreaPerOAuth2(email, nome, cognome);
+        Utente utente = utenteService.trovaOCreaPerOAuth2(email, nome, cognome);
 
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(credenziali.getRuolo().name()));
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(utente.getRuolo().name()));
 
-        return new CustomOidcUser(oidcUser, credenziali.getUsername(), authorities);
+        return new CustomOidcUser(oidcUser, utente.getUsername(), authorities);
     }
 }

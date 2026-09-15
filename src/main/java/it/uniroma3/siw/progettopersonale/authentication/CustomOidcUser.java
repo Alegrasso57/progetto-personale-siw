@@ -15,8 +15,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
  * "(UserDetails) SecurityContextHolder...getPrincipal()" e poi
  * utenteService.findByUsername(userDetails.getUsername()) funziona anche per
  * chi accede con Google, usando come "username" lo stesso valore salvato
- * nella riga Credenziali creata/trovata per l'email Google (vedi
- * CredenzialiService.trovaOCreaPerOAuth2 e CustomOidcUserService).
+ * sull'Utente creato/trovato per l'email Google (vedi
+ * UtenteService.trovaOCreaPerOAuth2 e CustomOidcUserService).
  */
 public class CustomOidcUser implements OidcUser, UserDetails {
 

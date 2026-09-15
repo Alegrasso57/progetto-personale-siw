@@ -13,44 +13,48 @@ import it.uniroma3.siw.progettopersonale.model.Animale;
 import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
 import it.uniroma3.siw.progettopersonale.service.AnimaleService;
 
+/**
+ * CRUD degli animali riservato all'ADMIN.
+ * Tutte le rotte /admin/** sono protette da SecurityConfig con hasAuthority("ADMIN").
+ */
 @Controller
-public class VolontarioAnimaleController {
+public class AdminAnimaleController {
 
     private final AnimaleService animaleService;
 
-    public VolontarioAnimaleController(AnimaleService animaleService) {
+    public AdminAnimaleController(AnimaleService animaleService) {
         this.animaleService = animaleService;
     }
 
-    @GetMapping("/volontario/animali")
+    @GetMapping("/admin/animali")
     public String elenco(@RequestParam(value = "cerca", required = false) String cerca, Model model) {
         model.addAttribute("animaleList", animaleService.findAllBySearch(cerca));
         model.addAttribute("cerca", cerca != null ? cerca : "");
-        return "volontario/animali";
+        return "admin/animali";
     }
 
-    @GetMapping("/volontario/animali/nuovo")
+    @GetMapping("/admin/animali/nuovo")
     public String formNuovo(Model model) {
         model.addAttribute("animale", new Animale());
         model.addAttribute("statiAnimale", StatoAnimale.values());
-        return "volontario/animaleForm";
+        return "admin/animaleForm";
     }
 
-    @GetMapping("/volontario/animali/{id}/modifica")
+    @GetMapping("/admin/animali/{id}/modifica")
     public String formModifica(@PathVariable("id") Long id, Model model) {
         model.addAttribute("animale", animaleService.findById(id));
         model.addAttribute("statiAnimale", StatoAnimale.values());
-        return "volontario/animaleForm";
+        return "admin/animaleForm";
     }
 
-    @PostMapping("/volontario/animali")
+    @PostMapping("/admin/animali")
     public String salva(@Valid @ModelAttribute("animale") Animale animaleForm,
                          BindingResult bindingResult,
                          Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("statiAnimale", StatoAnimale.values());
-            return "volontario/animaleForm";
+            return "admin/animaleForm";
         }
 
         Animale animale;
@@ -69,12 +73,12 @@ public class VolontarioAnimaleController {
         animale.setStato(animaleForm.getStato() != null ? animaleForm.getStato() : StatoAnimale.DISPONIBILE);
 
         animaleService.save(animale);
-        return "redirect:/volontario/animali";
+        return "redirect:/admin/animali";
     }
 
-    @PostMapping("/volontario/animali/{id}/elimina")
+    @PostMapping("/admin/animali/{id}/elimina")
     public String elimina(@PathVariable("id") Long id) {
         animaleService.deleteById(id);
-        return "redirect:/volontario/animali";
+        return "redirect:/admin/animali";
     }
 }

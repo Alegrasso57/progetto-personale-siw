@@ -7,18 +7,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import it.uniroma3.siw.progettopersonale.exception.CodiceVolontarioNonValidoException;
 import it.uniroma3.siw.progettopersonale.exception.UsernameGiaUtilizzatoException;
-import it.uniroma3.siw.progettopersonale.model.Utente;
-import it.uniroma3.siw.progettopersonale.service.CredenzialiService;
+import it.uniroma3.siw.progettopersonale.service.UtenteService;
 
 @Controller
 public class AuthController {
 
-    private final CredenzialiService credenzialiService;
+    private final UtenteService utenteService;
 
-    public AuthController(CredenzialiService credenzialiService) {
-        this.credenzialiService = credenzialiService;
+    public AuthController(UtenteService utenteService) {
+        this.utenteService = utenteService;
     }
 
     @GetMapping("/login")
@@ -34,22 +32,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registraUtente(@Valid @ModelAttribute("registrazioneForm") RegistrazioneForm form,
-                                  BindingResult bindingResult,
-                                  Model model) {
+                                  BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return "register";
         }
 
-        Utente utente = new Utente();
-        utente.setNome(form.getNome());
-        utente.setCognome(form.getCognome());
-
         try {
-            credenzialiService.registra(form.getUsername(), form.getPassword(), form.getRuolo(),
-                    form.getCodiceVolontario(), utente);
+            utenteService.registra(form.getUsername(), form.getPassword(),
+                    form.getNome(), form.getCognome());
             return "redirect:/login";
-        } catch (UsernameGiaUtilizzatoException | CodiceVolontarioNonValidoException e) {
+        } catch (UsernameGiaUtilizzatoException e) {
             bindingResult.reject("erroreRegistrazione", e.getMessage());
             return "register";
         }

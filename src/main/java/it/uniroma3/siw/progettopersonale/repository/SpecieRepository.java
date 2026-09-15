@@ -16,16 +16,11 @@ import it.uniroma3.siw.progettopersonale.model.StatoAnimale;
  * resta responsabile solo degli Animale).
  *
  * Estende Repository (il marker base, senza save/delete/findAll) e non
- * CrudRepository: qui servono solo le query in lettura definite qui sotto,
- * non le operazioni CRUD su Animale (quelle restano in AnimaleRepository).
+ * CrudRepository: qui serve solo la query in lettura definita qui sotto.
  */
 public interface SpecieRepository extends Repository<Animale, Long> {
 
-    /** Specie distinte tra gli animali con un certo stato, in ordine alfabetico crescente (A-Z). */
-    @Query("SELECT DISTINCT a.specie FROM Animale a WHERE a.stato = :stato ORDER BY a.specie ASC")
-    List<String> findDistinctByStatoOrderByNomeAsc(@Param("stato") StatoAnimale stato);
-
-    /** Stesso elenco, in ordine alfabetico decrescente (Z-A). */
-    @Query("SELECT DISTINCT a.specie FROM Animale a WHERE a.stato = :stato ORDER BY a.specie DESC")
-    List<String> findDistinctByStatoOrderByNomeDesc(@Param("stato") StatoAnimale stato);
+    /** Specie distinte tra gli animali con un certo stato. */
+    @Query("SELECT DISTINCT a.specie FROM Animale a WHERE a.stato = :stato")
+    List<String> findDistinctByStato(@Param("stato") StatoAnimale stato);
 }

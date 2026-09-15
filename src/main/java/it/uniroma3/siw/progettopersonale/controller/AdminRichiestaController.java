@@ -8,31 +8,34 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import it.uniroma3.siw.progettopersonale.service.RichiestaAdozioneService;
 
+/**
+ * Valutazione delle richieste di adozione, riservata all'ADMIN.
+ */
 @Controller
-public class VolontarioRichiestaController {
+public class AdminRichiestaController {
 
     private final RichiestaAdozioneService richiestaAdozioneService;
 
-    public VolontarioRichiestaController(RichiestaAdozioneService richiestaAdozioneService) {
+    public AdminRichiestaController(RichiestaAdozioneService richiestaAdozioneService) {
         this.richiestaAdozioneService = richiestaAdozioneService;
     }
 
-    @GetMapping("/volontario/richieste")
+    @GetMapping("/admin/richieste")
     public String elenco(@RequestParam(value = "cerca", required = false) String cerca, Model model) {
         model.addAttribute("richiestaList", richiestaAdozioneService.findInAttesaBySearch(cerca));
         model.addAttribute("cerca", cerca != null ? cerca : "");
-        return "volontario/richieste";
+        return "admin/richieste";
     }
 
-    @PostMapping("/volontario/richieste/{id}/approva")
+    @PostMapping("/admin/richieste/{id}/approva")
     public String approva(@PathVariable("id") Long id) {
         richiestaAdozioneService.approvaRichiesta(id);
-        return "redirect:/volontario/richieste";
+        return "redirect:/admin/richieste";
     }
 
-    @PostMapping("/volontario/richieste/{id}/rifiuta")
+    @PostMapping("/admin/richieste/{id}/rifiuta")
     public String rifiuta(@PathVariable("id") Long id) {
         richiestaAdozioneService.rifiutaRichiesta(id);
-        return "redirect:/volontario/richieste";
+        return "redirect:/admin/richieste";
     }
 }

@@ -21,23 +21,35 @@
             </span>
             <h1 th:text="${animale.nome}">Nome</h1>
             <p th:text="'Specie: ' + ${animale.specie}">Specie</p>
-            <p th:text="'Razza: ' + ${animale.razza}">Razza</p>
-            <p th:text="'Età: ' + ${animale.eta}">Età</p>
-            <p th:text="'Sesso: ' + ${animale.sesso}">Sesso</p>
+            <p th:if="${animale.razza != null and !animale.razza.isEmpty()}"
+               th:text="'Razza: ' + ${animale.razza}">Razza</p>
+            <p th:if="${animale.eta != null}" th:text="'Età: ' + ${animale.eta} + ' anni'">Età</p>
+            <p th:if="${animale.sesso != null and !animale.sesso.isEmpty()}"
+               th:text="'Sesso: ' + ${animale.sesso}">Sesso</p>
             <p th:text="${animale.descrizione}">Descrizione</p>
 
-            <div th:if="${(userDetails != null and !userDetails.authorities.?[authority == 'ADOTTANTE'].empty) and animale.stato.name() == 'DISPONIBILE'}">
-                <a th:href="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}">Richiedi l'adozione</a>
+            <!--
+                Il pulsante compare a un UTENTE normale solo se l'animale e'
+                disponibile E non ha gia' una richiesta in attesa per lui.
+                giaRichiesto arriva da AnimaleController.dettaglio.
+            -->
+            <div th:if="${(userDetails != null and !userDetails.authorities.?[authority == 'UTENTE'].empty)
+                          and animale.stato.name() == 'DISPONIBILE' and !giaRichiesto}">
+                <a class="btn-action" th:href="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}">Richiedi l'adozione</a>
             </div>
+
+            <p th:if="${giaRichiesto}" class="slot-legenda">
+                Hai già una richiesta in attesa per questo animale: non puoi inviarne una seconda.
+                La trovi fra <a th:href="@{/le-mie-richieste}">le mie richieste</a>, dove puoi
+                modificarla o annullarla.
+            </p>
+
+            <p th:if="${userDetails == null}">
+                <a th:href="@{/login}">Accedi</a> per richiedere l'adozione di questo animale.
+            </p>
         </div>
 
-        <h2>Turni programmati</h2>
-        <div class="card" th:each="turno : ${turni}">
-            <p th:text="'Data: ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')} + '  Fascia oraria : ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">Data e ora</p>
-            <p th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">Volontario</p>
-        </div>
-        <p th:if="${#lists.isEmpty(turni)}">Nessun turno programmato per questo animale.</p>
-
+        <p><a th:href="@{/animali}">← Torna all'elenco degli animali</a></p>
     </div>
 </body>
 </html>

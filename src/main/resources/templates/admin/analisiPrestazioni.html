@@ -12,39 +12,120 @@
 <body>
     <nav th:replace="~{fragments/nav :: navbarCompleta}"></nav>
 
-    <div class="container">
-        <h1>Analisi delle prestazioni</h1>
-        <p>Questa pagina dimostra il problema delle query N+1 nell'accesso a relazioni JPA/Hibernate caricate in modalità lazy (<code>volontario.getTurni()</code>), e come risolverlo con <code>JOIN FETCH</code>.</p>
+    <div class="container centered">
+        <div class="page-header-center">
+            <h1 class="page-header-title">Analisi delle prestazioni</h1>
+        </div>
 
-        <div class="card">
-            <h2>Il problema N+1</h2>
-            <p>Per mostrare, per ogni volontario, i turni che ha messo a disposizione, un modo naturale ma inefficiente è:</p>
-            <ol>
-                <li>Una query per caricare l'elenco dei volontari.</li>
-                <li>Una query aggiuntiva <strong>per ogni singolo volontario</strong>, eseguita nel momento in cui si accede a <code>volontario.getTurni()</code> (relazione <code>@OneToMany</code> caricata in modalità lazy).</li>
+        <p class="n1-intro">
+            Ogni relazione fra due entità va interrogata con attenzione: se si legge una collezione
+            <strong>una riga alla volta</strong>, il numero di query cresce insieme ai dati.
+            Questa pagina lo mostra sulla relazione fra <strong>Animale</strong> e
+            <strong>Richiesta di adozione</strong>, misurando la differenza sui dati realmente
+            presenti nel database.
+        </p>
+
+        <!-- ============ 1. La relazione ============ -->
+        <section class="n1-section">
+            <h2>La relazione: uno-a-molti e molti-a-uno</h2>
+
+            <p>Un animale può ricevere molte richieste di adozione; ogni richiesta riguarda
+               un solo animale. È la stessa relazione vista dai due lati.</p>
+
+            <div class="n1-relazione">
+                <div class="n1-entita">
+                    <span class="n1-entita-nome">Animale</span>
+                    <span class="n1-entita-ruolo">lato UNO — inverso</span>
+                </div>
+                <span class="n1-freccia">1 &nbsp;&mdash;&mdash;&rarr;&nbsp; N</span>
+                <div class="n1-entita">
+                    <span class="n1-entita-nome">RichiestaAdozione</span>
+                    <span class="n1-entita-ruolo">lato MOLTI — proprietario</span>
+                </div>
+            </div>
+
+            <div class="code-block">// Animale.java — lato UNO
+@OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+private List&lt;RichiestaAdozione&gt; richiesteAdozione;
+
+// RichiestaAdozione.java — lato MOLTI
+@ManyToOne
+private Animale animale;</div>
+
+            <p><strong>Chi tiene la chiave esterna?</strong> Il lato <code>@ManyToOne</code>.
+               Nella tabella delle richieste esiste una colonna <code>animale_id</code>; nella
+               tabella degli animali non c'è nessuna colonna che punti alle richieste, perché una
+               riga non può contenerne molte.</p>
+
+            <p><strong>A cosa serve <code>mappedBy</code>?</strong> Dice a Hibernate che questa
+               relazione è già mappata dall'altra parte, e che quindi qui non deve creare niente di
+               nuovo. Senza, Hibernate crederebbe di avere due relazioni distinte e costruirebbe
+               una tabella di join inutile per tenere insieme animali e richieste.</p>
+        </section>
+
+        <!-- ============ 2. Il confronto ============ -->
+        <section class="n1-section">
+            <h2>Due modi di leggerla <span class="badge-n1">N+1</span> <span class="badge-ok">JOIN FETCH</span></h2>
+
+            <p>La collezione è dichiarata <code>FetchType.LAZY</code>: non viene caricata insieme
+               all'animale, ma solo quando la si usa davvero. È la scelta giusta (nell'elenco degli
+               animali le richieste non servono), però diventa una trappola quando si scorre una lista.</p>
+
+            <div class="n1-confronto">
+                <div class="n1-caso n1-caso-problema">
+                    <h3>Senza accorgimenti</h3>
+                    <p>Si carica la lista, poi per ogni animale si accede a
+                       <code>getRichiesteAdozione()</code> e Hibernate va di nuovo a database.</p>
+                    <span class="n1-numero" th:text="${queriesSenzaSoluzione}">N+1</span>
+                    <span class="n1-etichetta">query eseguite</span>
+                </div>
+
+                <div class="n1-caso n1-caso-soluzione">
+                    <h3>Con JOIN FETCH</h3>
+                    <p>Si chiede al database di restituire animali e richieste insieme, in un
+                       unico risultato già completo.</p>
+                    <span class="n1-numero" th:text="${queriesConSoluzione}">1</span>
+                    <span class="n1-etichetta">query eseguite</span>
+                </div>
+            </div>
+
+            <p>Il numero a sinistra non è fisso: con
+               <strong th:text="${totaleAnimali}">N</strong> animali in archivio diventa
+               1 query per la lista più una per ciascun animale. Aggiungendo animali peggiora;
+               quello a destra resta 1 per sempre.</p>
+
+            <p>Da qui il nome del problema — <strong>"N+1"</strong> — e la regola pratica:
+               ogni volta che si itera su una lista di entità e si tocca una loro collezione LAZY,
+               conviene chiedersi se non serva un JOIN FETCH.</p>
+        </section>
+
+        <!-- ============ 3. La soluzione ============ -->
+        <section class="n1-section">
+            <h2>La query</h2>
+
+            <div class="code-block">@Query("SELECT DISTINCT a FROM Animale a LEFT JOIN FETCH a.richiesteAdozione")
+List&lt;Animale&gt; findTuttiConRichieste();</div>
+
+            <p>Due dettagli che sembrano opzionali ma non lo sono:</p>
+
+            <ol class="n1-passi">
+                <li><strong>LEFT</strong> — con un join interno gli animali che non hanno ancora
+                    ricevuto nessuna richiesta sparirebbero dal risultato, perché non avrebbero
+                    nessuna riga da abbinare. <code>LEFT</code> li tiene, con la collezione vuota.</li>
+                <li><strong>DISTINCT</strong> — il join produce una riga per ogni coppia
+                    (animale, richiesta): un animale con tre richieste comparirebbe tre volte nella
+                    lista. <code>DISTINCT</code> lo riporta a uno, con le sue tre richieste dentro.</li>
             </ol>
-            <p>Con <strong th:text="${totaleVolontari}">N</strong> volontari nel database, il totale è <strong th:text="${queriesSenzaSoluzione}">N+1</strong> query: esattamente il problema "N+1".</p>
-        </div>
 
-        <div class="card">
-            <h2>La soluzione: JOIN FETCH</h2>
-            <p>Usando <code>LEFT JOIN FETCH</code> nella query JPQL, i turni vengono caricati insieme ai volontari in un'unica query, indipendentemente da quanti volontari ci sono:</p>
-            <p>Numero di query eseguite: <strong th:text="${queriesConSoluzione}">1</strong>.</p>
-        </div>
+            <p class="n1-nota">
+                Il metodo sta in <code>AnimaleRepository</code>, viene esposto da
+                <code>AnimaleService.findTuttiConRichieste()</code> e usato da
+                <code>AdminController</code>: lo stesso percorso repository → service → controller
+                di qualunque altra query del sito.
+            </p>
+        </section>
 
-        <div class="card">
-            <h2>Risultato</h2>
-            <p>Turni totali messi a disposizione da tutti i volontari: <strong th:text="${totaleTurni}">N</strong>.</p>
-
-            <ul class="link-list" th:if="${!#lists.isEmpty(volontariConTurni)}">
-                <li th:each="volontario : ${volontariConTurni}">
-                    <span th:text="${volontario.nome} + ' ' + ${volontario.cognome} + ': ' + ${#lists.size(volontario.turni)} + ' turno/i'">Volontario: N turni</span>
-                </li>
-            </ul>
-            <p th:if="${#lists.isEmpty(volontariConTurni)}">Non ci sono ancora volontari con turni registrati.</p>
-        </div>
-
-        <p><a th:href="@{/}">Torna alla home</a></p>
+        <p><a th:href="@{/}">← Torna alla home</a></p>
     </div>
 </body>
 </html>

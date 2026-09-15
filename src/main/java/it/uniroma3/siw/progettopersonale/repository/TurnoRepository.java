@@ -2,24 +2,21 @@ package it.uniroma3.siw.progettopersonale.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
-import it.uniroma3.siw.progettopersonale.model.Animale;
+
 import it.uniroma3.siw.progettopersonale.model.RichiestaAdozione;
 import it.uniroma3.siw.progettopersonale.model.Turno;
-import it.uniroma3.siw.progettopersonale.model.Utente;
 
 public interface TurnoRepository extends CrudRepository<Turno, Long> {
 
-    List<Turno> findByAnimale(Animale animale);
+    /** Tutti i turni di una certa data: serve al controllo delle sovrapposizioni. */
+    List<Turno> findByData(LocalDate data);
 
-    List<Turno> findByVolontario(Utente volontario);
+    /** Slot ancora liberi: quelli che nessuna richiesta ha prenotato. */
+    List<Turno> findByRichiestaAdozioneIsNull();
 
-    List<Turno> findByDataOrderByOraInizioAsc(LocalDate data);
-
-    List<Turno> findByVolontarioAndData(Utente volontario, LocalDate data);
-
-    /** Turni dichiarati disponibili dai volontari e non ancora legati a nessun animale/richiesta. */
-    List<Turno> findByAnimaleIsNullOrderByDataAscOraInizioAsc();
-
-    List<Turno> findByRichiestaAdozione(RichiestaAdozione richiestaAdozione);
+    /** Lo slot prenotato da una certa richiesta (vuoto se non ne ha). */
+    Optional<Turno> findByRichiestaAdozione(RichiestaAdozione richiestaAdozione);
 }

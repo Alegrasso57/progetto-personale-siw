@@ -17,6 +17,15 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Animale ospitato dal rifugio.
+ *
+ * RELAZIONE UNO-A-MOLTI con RichiestaAdozione: un animale puo' ricevere piu'
+ * richieste di adozione, ogni richiesta riguarda un solo animale
+ * (vedi RichiestaAdozione.animale, che e' il lato @ManyToOne e proprietario
+ * della chiave esterna). E' la relazione usata nella pagina
+ * /admin/analisi-prestazioni per mostrare il problema N+1.
+ */
 @Entity
 @Table(name = "animali")
 public class Animale {
@@ -45,15 +54,15 @@ public class Animale {
     @Column(nullable = false)
     private StatoAnimale stato;
 
-    /** Composizione: i turni collegati a un animale non hanno senso senza di esso. */
-    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Turno> turni = new ArrayList<>();
-
+    /**
+     * Lato UNO della relazione uno-a-molti con RichiestaAdozione.
+     * mappedBy = "animale" dice che la chiave esterna sta sull'altra entita'.
+     * E' LAZY: accedendo a getRichiesteAdozione() per ogni animale di una
+     * lista si scatena il problema N+1, risolto con il JOIN FETCH in
+     * AnimaleRepository.findTuttiConRichieste().
+     */
     @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RichiestaAdozione> richiesteAdozione = new ArrayList<>();
-
-    @OneToMany(mappedBy = "animale", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Recensione> recensioni = new ArrayList<>();
 
     public Animale() {
     }
@@ -132,28 +141,12 @@ public class Animale {
         this.stato = stato;
     }
 
-    public List<Turno> getTurni() {
-        return turni;
-    }
-
-    public void setTurni(List<Turno> turni) {
-        this.turni = turni;
-    }
-
     public List<RichiestaAdozione> getRichiesteAdozione() {
         return richiesteAdozione;
     }
 
     public void setRichiesteAdozione(List<RichiestaAdozione> richiesteAdozione) {
         this.richiesteAdozione = richiesteAdozione;
-    }
-
-    public List<Recensione> getRecensioni() {
-        return recensioni;
-    }
-
-    public void setRecensioni(List<Recensione> recensioni) {
-        this.recensioni = recensioni;
     }
 
     @Override

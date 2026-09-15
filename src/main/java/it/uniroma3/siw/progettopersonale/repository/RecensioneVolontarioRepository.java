@@ -1,13 +1,22 @@
 package it.uniroma3.siw.progettopersonale.repository;
 
-import java.util.List;
-import org.springframework.data.repository.CrudRepository;
-import it.uniroma3.siw.progettopersonale.model.RecensioneVolontario;
-import it.uniroma3.siw.progettopersonale.model.Utente;
-
-public interface RecensioneVolontarioRepository extends CrudRepository<RecensioneVolontario, Long> {
-
-    List<RecensioneVolontario> findByVolontario(Utente volontario);
-
-    boolean existsByAutoreAndVolontario(Utente autore, Utente volontario);
-}
+/*
+ * ============================================================
+ *  FILE NON PIU' USATO - si puo' cancellare senza conseguenze.
+ * ============================================================
+ *
+ *  Classe rimossa: RecensioneVolontarioRepository
+ *  Motivo: non esistono piu' le recensioni sui volontari
+ *
+ *  Il sito e' stato semplificato sul modello di Movie Festival:
+ *  esiste UNA SOLA entita' Utente con dentro il Ruolo (ADMIN oppure
+ *  UTENTE). Non esiste piu' la figura del "volontario", e sono stati
+ *  tolti i turni e le recensioni sui volontari.
+ *
+ *  Questo file e' stato svuotato invece che cancellato solo perche' lo
+ *  strumento che scrive sul disco non sa eliminare file. Un file .java
+ *  senza dichiarazioni di tipo e' comunque codice valido: non produce
+ *  nessuna classe e non viene caricato da Spring.
+ *
+ *  Quando vuoi, eliminalo dal progetto.
+ */

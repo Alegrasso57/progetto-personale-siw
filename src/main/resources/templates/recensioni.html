@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Le recensioni degli utenti sull'operato degli amministratori del Rifugio Amico.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Recensioni — Rifugio Amico</title>
+</head>
+<body>
+    <nav th:replace="~{fragments/nav :: navbarCompleta}"></nav>
+
+    <div class="container">
+        <div class="page-header-center">
+            <h1 class="page-header-title">Recensioni sul centro</h1>
+
+            <a th:if="${puoRecensire}" th:href="@{/recensioni/nuova}" class="btn-nuovo">+ Scrivi una recensione</a>
+        </div>
+
+        <p th:if="${utenteAutenticato != null and utenteAutenticato.admin}" class="slot-legenda">
+           Visualizza le recensioni lasciate dagli adottanti: 
+        </p>
+        <p th:if="${utenteAutenticato == null}">
+            <a th:href="@{/login}">Accedi</a> per lasciare una recensione.
+        </p>
+
+        <ul class="recensioni-list" th:if="${!#lists.isEmpty(recensioni)}">
+            <li class="recensione-item" th:each="r : ${recensioni}">
+                <p class="recensione-autore"
+                   th:text="'Su ' + ${r.admin.nome} + ' ' + ${r.admin.cognome}
+                            + ' — di ' + ${r.autore.nome} + ' ' + ${r.autore.cognome}">
+                    Su Admin, scritta da Autore.
+                </p>
+
+                <p class="recensione-stelle">
+                    <span th:each="i : ${#numbers.sequence(1,5)}" th:text="${i <= r.voto} ? '★' : '☆'">★</span>
+                </p>
+
+                <p class="recensione-testo" th:text="${r.testo}">Testo della recensione</p>
+
+                <p class="recensione-data" th:if="${r.data != null}"
+                   th:text="${#temporals.format(r.data, 'dd/MM/yyyy')}">gg/mm/aaaa</p>
+
+                <!-- Modifica ed eliminazione solo all'autore della recensione. -->
+                <div class="actions"
+                     th:if="${utenteAutenticato != null and r.autore.id == utenteAutenticato.id}">
+                    <a class="btn-action btn-modifica"
+                       th:href="@{'/recensioni/' + ${r.id} + '/modifica'}">Modifica</a>
+
+                    <form th:action="@{'/recensioni/' + ${r.id} + '/elimina'}" method="post" class="form-inline">
+                        <button type="submit" class="btn-action btn-elimina"
+                                onclick="return confirm('Eliminare la tua recensione?')">Elimina</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+
+        <p th:if="${#lists.isEmpty(recensioni)}">Non ci sono ancora recensioni.</p>
+    </div>
+</body>
+</html>

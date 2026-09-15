@@ -17,8 +17,8 @@
             <h1 class="page-header-title">Le mie richieste di adozione</h1>
             <a th:href="@{/animali}" class="btn-nuovo">+ Nuova richiesta</a>
 
-            <!-- Barra di ricerca per nome animale -->
-            <form th:action="@{/le-mie-richieste}" method="get" class="search-bar search-bar-compact" id="form-ricerca-mie-richieste">
+            <form th:action="@{/le-mie-richieste}" method="get" class="search-bar search-bar-compact"
+                  id="form-ricerca-mie-richieste">
                 <input type="text" name="cerca" id="cerca-mie-richieste"
                        th:value="${cerca}"
                        placeholder="Cerca per nome animale…"
@@ -29,29 +29,36 @@
 
         <div class="card" th:each="richiesta : ${richieste}">
             <span th:switch="${richiesta.stato.name()}">
-                <span th:case="'IN ATTESA'" class="badge badge-in-valutazione">In attesa</span>
+                <span th:case="'IN_ATTESA'" class="badge badge-in-valutazione">In attesa</span>
                 <span th:case="'APPROVATA'" class="badge badge-disponibile">Approvata</span>
                 <span th:case="'RIFIUTATA'" class="badge badge-adottato">Rifiutata</span>
             </span>
-            <p th:text="'Animale: ' + ${richiesta.animale.nome}">Animale</p>
-            <p th:text="'Data richiesta : ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
+
+            <!-- Specifiche dell'animale richiesto -->
+            <p th:text="'Nome: ' + ${richiesta.animale.nome}">Nome</p>
+            <p th:text="'Specie: ' + ${richiesta.animale.specie}">Specie</p>
+            <p th:text="'Razza: ' + (${richiesta.animale.razza != null and !richiesta.animale.razza.isEmpty()}
+                        ? ${richiesta.animale.razza} : 'non indicata')">Razza</p>
+            <p th:text="'Età: ' + (${richiesta.animale.eta != null}
+                        ? ${richiesta.animale.eta} + ' anni' : 'non indicata')">Età</p>
+
+            <p th:text="'Richiesta inviata il ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
+
+            <!-- Lo slot scelto: la relazione RichiestaAdozione -> Turno -->
+            <p th:if="${richiesta.turno != null}"
+               th:text="'Orario della visita: ' + ${#temporals.format(richiesta.turno.data, 'dd/MM/yyyy')}
+                        + ' ore ' + ${#temporals.format(richiesta.turno.oraInizio, 'HH:mm')}
+                        + ' - ' + ${#temporals.format(richiesta.turno.oraFine, 'HH:mm')}">Orario</p>
+            <p th:if="${richiesta.turno == null}">Nessun orario associato, la richiesta è stata rifiutata.</p>
+
             <p th:if="${richiesta.motivazione != null and !richiesta.motivazione.isEmpty()}"
                th:text="'Motivo della richiesta: &quot;' + ${richiesta.motivazione} + '&quot;'">Motivazione</p>
-            <div class="richiesta-orari" th:if="${!#lists.isEmpty(richiesta.turniPrenotati)}">
-                <div class="richiesta-orario" th:each="turno : ${richiesta.turniPrenotati}">
-                    <p class="richiesta-orario-riga"
-                       th:text="'Orari proposti per la visita: ' + ${#temporals.format(turno.data, 'dd/MM/yyyy')} + ' ore ' + ${#temporals.format(turno.oraInizio, 'HH:mm')} + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">
-                        Orari proposti per la visita: Turno
-                    </p>
-                    <p class="richiesta-orario-volontario"
-                       th:text="'Volontario: ' + ${turno.volontario.nome} + ' ' + ${turno.volontario.cognome}">
-                        Volontario
-                    </p>
-                </div>
-            </div>
+
+           
             <div class="actions" th:if="${richiesta.stato.name() == 'IN_ATTESA'}">
                 <a class="btn-action btn-modifica"
                    th:href="@{'/le-mie-richieste/' + ${richiesta.id} + '/modifica'}">Modifica</a>
+
                 <form th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/elimina'}" method="post"
                       class="form-inline">
                     <button type="submit" class="btn-action btn-elimina"
@@ -59,6 +66,7 @@
                 </form>
             </div>
         </div>
+
         <p th:if="${#lists.isEmpty(richieste)}">Non hai ancora inviato nessuna richiesta di adozione.</p>
     </div>
 </body>

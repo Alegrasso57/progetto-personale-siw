@@ -13,13 +13,30 @@
     <nav th:replace="~{fragments/nav :: navbarCompleta}"></nav>
 
     <div class="container">
-        <h1 th:text="'Recensione per ' + ${animale.nome}">Recensione</h1>
+        <h1 th:text="${recensione.id == null} ? 'Scrivi una recensione' : 'Modifica la tua recensione'">Recensione</h1>
 
-        <form th:action="${recensione.id == null} ? @{'/animali/' + ${animale.id} + '/recensioni'} : @{'/recensioni/' + ${recensione.id} + '/modifica'}"
+       
+        <form th:action="${recensione.id == null}
+                         ? @{/recensioni}
+                         : @{'/recensioni/' + ${recensione.id} + '/modifica'}"
               method="post" th:object="${recensione}">
+
             <div th:if="${#fields.hasGlobalErrors()}">
                 <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="errore">Messaggio di errore</p>
             </div>
+
+           
+            <label th:if="${recensione.id == null}">Amministratore da recensire:
+                <select name="adminId" required>
+                    <option value="" disabled selected>Scegli un amministratore</option>
+                    <option th:each="a : ${amministratori}" th:value="${a.id}"
+                            th:text="${a.nome} + ' ' + ${a.cognome}">Nome Cognome</option>
+                </select>
+            </label>
+            <p th:if="${recensione.id != null}"
+               th:text="'Recensione su: ' + ${recensione.admin.nome} + ' ' + ${recensione.admin.cognome}">
+                Amministratore
+            </p>
 
             <label>Voto (1-5):
                 <input type="number" th:field="*{voto}" min="1" max="5">
@@ -33,6 +50,8 @@
 
             <button type="submit">Salva recensione</button>
         </form>
+
+        <p><a th:href="@{/recensioni}">Annulla</a></p>
     </div>
 </body>
 </html>

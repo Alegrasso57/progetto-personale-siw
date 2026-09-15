@@ -1,13 +1,4 @@
-/* ============================================================
-   Rifugio Amico — foglio di stile
-   Font: Google Fonts "Fraunces" (titoli) + "Inter" (testo),
-   caricati via <link> nell'head di ogni pagina (vedi slide "Web Fonts").
-   Palette, impaginazione e misure sono originali; la sintassi CSS
-   (selettori, box model, flexbox, position, calc, variabili, rem/em,
-   media query) segue quanto visto a lezione.
-   ============================================================ */
 
-/* ===== Variabili CSS (slide "Variabili CSS") ===== */
 :root {
     --font-heading: 'Fraunces', Georgia, serif;
     --font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
@@ -1143,5 +1134,170 @@ a.btn-nuovo:active {
         left: 0;
         transform: none;
         min-width: 12rem;
+    }
+}
+
+
+/* ===== Pagina N+1 Admin: layout esteso =====
+   Si appoggia alle classi gia' presenti piu' sopra (.n1-section, .code-block,
+   .badge-n1, .badge-ok) e aggiunge il confronto affiancato "problema /
+   soluzione" e il riquadro del risultato. */
+
+.n1-intro {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+    /* max-width tiene le righe corte e leggibili, i margini automatici
+       centrano il blocco nella pagina sotto al titolo (anch'esso centrato). */
+    max-width: 48rem;
+    margin: 0 auto 2rem;
+    text-align: center;
+}
+
+.n1-intro strong {
+    color: var(--color-text);
+}
+
+/* Le due entita' della relazione, affiancate con la freccia in mezzo */
+.n1-relazione {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.25rem 0;
+}
+
+.n1-entita {
+    background-color: var(--color-bg);
+    border: 0.0625rem solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1.25rem;
+    text-align: center;
+    min-width: 11rem;
+}
+
+.n1-entita-nome {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.n1-entita-ruolo {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    margin-top: 0.15rem;
+}
+
+.n1-freccia {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    white-space: nowrap;
+}
+
+/* Confronto affiancato fra il modo inefficiente e quello con JOIN FETCH */
+.n1-confronto {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+.n1-caso {
+    border: 0.0625rem solid var(--color-border);
+    border-left-width: 0.25rem;
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    background-color: var(--color-bg);
+}
+
+.n1-caso-problema {
+    border-left-color: #a34328;
+}
+
+.n1-caso-soluzione {
+    border-left-color: var(--color-disponibile-text);
+}
+
+.n1-caso h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.n1-caso p {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin: 0.4rem 0;
+}
+
+.n1-numero {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 0.75rem;
+}
+
+.n1-caso-problema .n1-numero {
+    color: #a34328;
+}
+
+.n1-caso-soluzione .n1-numero {
+    color: var(--color-disponibile-text);
+}
+
+.n1-etichetta {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+}
+
+/* Elenco numerato dei passaggi che generano le query */
+.n1-passi {
+    margin: 0.75rem 0 0;
+    padding-left: 1.25rem;
+}
+
+.n1-passi li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* Riquadro finale con il conteggio reale sui dati presenti */
+.n1-risultato {
+    background-color: var(--color-disponibile-bg);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1rem;
+}
+
+.n1-risultato p {
+    margin: 0.3rem 0;
+    color: var(--color-disponibile-text);
+}
+
+.n1-nota {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    border-top: 0.0625rem solid var(--color-border);
+    padding-top: 0.9rem;
+    margin-top: 1.25rem;
+}
+
+@media (max-width: 37.5rem) {
+    .n1-confronto {
+        grid-template-columns: 1fr;
+    }
+
+    .n1-freccia {
+        transform: rotate(90deg);
     }
 }

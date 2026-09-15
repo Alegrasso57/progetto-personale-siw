@@ -1,22 +1,26 @@
 package it.uniroma3.siw.progettopersonale.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Dati anagrafici di una persona registrata (volontario o adottante).
- * Le credenziali di accesso (username, password, ruolo) sono modellate
- * separatamente nella entita' Credenziali, come mostrato a lezione per
- * l'autenticazione con Spring Security.
+ * Utente registrato del sito. UNICA entita' per la persona: dati anagrafici
+ * (nome, cognome) E dati di accesso (username, password, ruolo) stanno qui.
+ *
+ * Il RUOLO distingue i due tipi di utente:
+ *   - Ruolo.ADMIN  -> amministratore del rifugio: inserisce e modifica gli
+ *     animali, approva o rifiuta le richieste di adozione, modera le recensioni
+ *   - Ruolo.UTENTE -> utente normale: richiede adozioni e scrive recensioni
  */
 @Entity
+@Table(name = "utente")
 public class Utente {
 
     @Id
@@ -30,12 +34,22 @@ public class Utente {
     private String cognome;
 
     /**
-     * Turni che questo volontario ha messo a disposizione (vuota per un
-     * Utente con ruolo ADOTTANTE): usata dalla pagina di analisi N+1 in
-     * /admin, sullo stesso schema di Animale.recensioni.
+     * Username di accesso (per chi entra con Google e' la sua email).
+     * unique = true: due utenti non possono avere lo stesso username.
+     *
+     * Nota: username, password e ruolo NON hanno annotazioni di Bean
+     * Validation, perche' non vengono mai compilati da una form su questa
+     * entita': la registrazione passa da RegistrazioneForm (che ha i suoi
+     * vincoli) e la modifica del profilo tocca solo nome e cognome.
      */
-    @OneToMany(mappedBy = "volontario", fetch = FetchType.LAZY)
-    private List<Turno> turni = new ArrayList<>();
+    @Column(unique = true)
+    private String username;
+
+    /** Password cifrata con BCrypt (vedi UtenteService.registra). */
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Ruolo ruolo;
 
     public Utente() {
     }
@@ -64,12 +78,33 @@ public class Utente {
         this.cognome = cognome;
     }
 
-    public List<Turno> getTurni() {
-        return turni;
+    public String getUsername() {
+        return username;
     }
 
-    public void setTurni(List<Turno> turni) {
-        this.turni = turni;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Ruolo getRuolo() {
+        return ruolo;
+    }
+
+    public void setRuolo(Ruolo ruolo) {
+        this.ruolo = ruolo;
+    }
+
+    /** Comodo nei template: ${utenteAutenticato.admin}. */
+    public boolean isAdmin() {
+        return this.ruolo == Ruolo.ADMIN;
     }
 
     @Override

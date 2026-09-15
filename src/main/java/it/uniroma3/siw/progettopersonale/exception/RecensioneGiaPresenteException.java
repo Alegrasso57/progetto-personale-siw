@@ -1,9 +1,9 @@
 package it.uniroma3.siw.progettopersonale.exception;
 
-/** Lanciata quando un utente tenta di inserire una seconda recensione per lo stesso animale. */
+/** Lanciata quando un utente tenta di recensire due volte lo stesso amministratore. */
 public class RecensioneGiaPresenteException extends RuntimeException {
 
     public RecensioneGiaPresenteException() {
-        super("Hai già inserito una recensione per questo animale.");
+        super("Hai già scritto una recensione per questo amministratore: puoi modificare quella esistente.");
     }
 }

@@ -7,69 +7,62 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <title>Richiedi adozione</title>
+    <title>Modifica richiesta</title>
 </head>
 <body>
     <nav th:replace="~{fragments/nav :: navbarCompleta}"></nav>
 
     <div class="container">
-        <h1 th:text="'Richiedi l\'adozione di ' + ${animale.nome}">Richiedi adozione</h1>
+        <h1 th:text="'Modifica la richiesta per ' + ${richiesta.animale.nome}">Modifica richiesta</h1>
 
         <p th:if="${errore != null}" th:text="${errore}" class="errore">Messaggio di errore</p>
 
-        <!-- Scheda dell'animale: nome, specie, razza ed età. -->
+        <!-- Scheda dell'animale richiesto: nome, specie, razza ed età. -->
         <div class="card">
-            <span th:switch="${animale.stato.name()}">
+            <span th:switch="${richiesta.animale.stato.name()}">
                 <span th:case="'DISPONIBILE'" class="badge badge-disponibile">Disponibile</span>
                 <span th:case="'IN_VALUTAZIONE'" class="badge badge-in-valutazione">In valutazione</span>
                 <span th:case="'ADOTTATO'" class="badge badge-adottato">Adottato</span>
             </span>
 
-            <p th:text="'Nome: ' + ${animale.nome}">Nome</p>
-            <p th:text="'Specie: ' + ${animale.specie}">Specie</p>
-            <p th:text="'Razza: ' + (${animale.razza != null and !animale.razza.isEmpty()}
-                        ? ${animale.razza} : 'non indicata')">Razza</p>
-            <p th:text="'Età: ' + (${animale.eta != null} ? ${animale.eta} + ' anni' : 'non indicata')">Età</p>
-            <p th:if="${animale.descrizione != null and !animale.descrizione.isEmpty()}"
-               th:text="${animale.descrizione}">Descrizione</p>
+            <p th:text="'Nome: ' + ${richiesta.animale.nome}">Nome</p>
+            <p th:text="'Specie: ' + ${richiesta.animale.specie}">Specie</p>
+            <p th:text="'Razza: ' + (${richiesta.animale.razza != null and !richiesta.animale.razza.isEmpty()}
+                        ? ${richiesta.animale.razza} : 'non indicata')">Razza</p>
+            <p th:text="'Età: ' + (${richiesta.animale.eta != null}
+                        ? ${richiesta.animale.eta} + ' anni' : 'non indicata')">Età</p>
+            <p th:text="'Richiesta inviata il ' + ${#temporals.format(richiesta.dataRichiesta, 'dd/MM/yyyy')}">Data</p>
         </div>
 
-        <form th:action="@{'/animali/' + ${animale.id} + '/richiedi-adozione'}" method="post"
+        <form th:action="@{'/le-mie-richieste/' + ${richiesta.id} + '/modifica'}" method="post"
               class="form-richiesta-adozione">
 
             <label>Perché vuoi adottare questo animale:
-                <textarea name="motivazione" rows="4"></textarea>
+                <textarea name="motivazione" rows="4" th:text="${richiesta.motivazione}"></textarea>
             </label>
 
             
-            <h2>Scegli l'orario della visita</h2>
+            <h2>Cambia l'orario della visita</h2>
 
-            <p th:if="${#lists.isEmpty(turniDisponibili)}" class="slot-legenda">
-                Al momento non ci sono orari disponibili: l'amministratore del rifugio non ne ha
-                ancora inseriti, oppure sono già prenotati. Riprova più tardi!
-            </p>
-
-            <div class="slot-calendar-wrap" th:unless="${#lists.isEmpty(turniDisponibili)}">
-                <p class="slot-legenda">
-                    Questi sono gli slot resi disponibili dall'amministratore. Scegline uno
-                    per completare la richiesta.
-                </p>
+            <div class="slot-calendar-wrap">
                 <ul class="slot-turni-list">
                     <li th:each="turno : ${turniDisponibili}" class="slot-turno-item">
                         <label>
-                            <input type="radio" name="turnoId" th:value="${turno.id}" required>
+                            <input type="radio" name="turnoId" th:value="${turno.id}" required
+                                   th:checked="${richiesta.turno != null and richiesta.turno.id == turno.id}">
                             <span th:text="${#temporals.format(turno.data, 'dd/MM/yyyy')}">gg/mm/aaaa</span>
                             <span th:text="${#temporals.format(turno.oraInizio, 'HH:mm')}
                                            + ' - ' + ${#temporals.format(turno.oraFine, 'HH:mm')}">08:00 - 09:00</span>
+                            <span th:if="${richiesta.turno != null and richiesta.turno.id == turno.id}">(orario attuale)</span>
                         </label>
                     </li>
                 </ul>
-
-                <button type="submit">Invia richiesta</button>
             </div>
+
+            <button type="submit">Salva modifiche</button>
         </form>
 
-        <p><a th:href="@{'/animali/' + ${animale.id}}">Annulla</a></p>
+        <p><a th:href="@{/le-mie-richieste}">Annulla</a></p>
     </div>
 </body>
 </html>

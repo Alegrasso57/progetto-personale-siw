@@ -13,8 +13,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+/**
+ * Recensione sull'OPERATO DI UN AMMINISTRATORE del rifugio: la scrive un
+ * utente registrato per dire come si e' trovato con chi gestisce il centro.
+ * Non riguarda gli animali.
+ *
+ * Due relazioni @ManyToOne, entrambe verso Utente ma con significato diverso:
+ *   - admin  -> l'amministratore recensito (un Utente con Ruolo.ADMIN)
+ *   - autore -> l'utente che ha scritto la recensione
+ *
+ * Il vincolo di unicita' su (admin_id, autore_id) impedisce a uno stesso
+ * utente di recensire due volte lo stesso amministratore: e' la regola che
+ * RecensioneService verifica con existsByAutoreAndAdmin prima di salvare.
+ */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"animale_id", "autore_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"admin_id", "autore_id"}))
 public class Recensione {
 
     @Id
@@ -31,9 +44,11 @@ public class Recensione {
 
     private LocalDate data;
 
+    /** L'amministratore di cui si sta recensendo l'operato. */
     @ManyToOne
-    private Animale animale;
+    private Utente admin;
 
+    /** L'utente che ha scritto la recensione. */
     @ManyToOne
     private Utente autore;
 
@@ -72,12 +87,12 @@ public class Recensione {
         this.data = data;
     }
 
-    public Animale getAnimale() {
-        return animale;
+    public Utente getAdmin() {
+        return admin;
     }
 
-    public void setAnimale(Animale animale) {
-        this.animale = animale;
+    public void setAdmin(Utente admin) {
+        this.admin = admin;
     }
 
     public Utente getAutore() {

@@ -34,38 +34,10 @@
             <label>Cognome: <input type="text" th:field="*{cognome}"></label>
             <span th:if="${#fields.hasErrors('cognome')}" th:errors="*{cognome}" class="errore"></span>
 
-
-            <label>Registrati come:
-                <select th:field="*{ruolo}">
-                    <option value="ADOTTANTE">Adottante (voglio adottare un animale)</option>
-                    <option value="VOLONTARIO">Volontario (lavoro per il centro)</option>
-                </select>
-            </label>
-            <span th:if="${#fields.hasErrors('ruolo')}" th:errors="*{ruolo}" class="errore"></span>
-
-            <div id="codiceVolontarioBox" style="display: none;">
-                <label>Codice del centro: <input type="text" th:field="*{codiceVolontario}"></label>
-                <small>Richiesto solo per registrarsi come volontario: te lo fornisce il centro per confermare che sei un dipendente.</small>
-            </div>
-
             <button type="submit">Registrati</button>
         </form>
 
         <p><a th:href="@{/login}">Hai già un account? Accedi</a></p>
     </div>
-
-    <script>
-        // Mostra il campo "codice del centro" solo quando si seleziona il ruolo volontario,
-        // così un semplice visitatore non vede nemmeno il campo se vuole solo adottare.
-        const selectRuolo = document.getElementById('ruolo');
-        const boxCodice = document.getElementById('codiceVolontarioBox');
-
-        function aggiornaVisibilitaCodice() {
-            boxCodice.style.display = (selectRuolo.value === 'VOLONTARIO') ? 'block' : 'none';
-        }
-
-        selectRuolo.addEventListener('change', aggiornaVisibilitaCodice);
-        aggiornaVisibilitaCodice();
-    </script>
 </body>
 </html>

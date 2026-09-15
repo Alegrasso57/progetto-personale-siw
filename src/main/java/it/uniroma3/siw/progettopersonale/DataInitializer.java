@@ -1,60 +1,53 @@
 package it.uniroma3.siw.progettopersonale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import it.uniroma3.siw.progettopersonale.repository.AnimaleRepository;
-import it.uniroma3.siw.progettopersonale.repository.CredenzialiRepository;
-import it.uniroma3.siw.progettopersonale.repository.RecensioneRepository;
-import it.uniroma3.siw.progettopersonale.repository.RichiestaAdozioneRepository;
-import it.uniroma3.siw.progettopersonale.repository.TurnoRepository;
 
+import it.uniroma3.siw.progettopersonale.model.Ruolo;
+import it.uniroma3.siw.progettopersonale.model.Utente;
+import it.uniroma3.siw.progettopersonale.repository.UtenteRepository;
+
+/**
+ * All'avvio garantisce che esista almeno un ADMIN: senza, nessuno potrebbe
+ * inserire animali, dichiarare turni o approvare adozioni, e non si potrebbe
+ * entrare nell'area /admin. L'amministratore non si registra dal sito: viene
+ * creato qui.
+ *
+ * Se un admin esiste gia' non fa nulla, quindi e' sicuro a ogni riavvio e non
+ * tocca mai i dati reali.
+ */
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final CredenzialiRepository credenzialiRepository;
-    private final AnimaleRepository animaleRepository;
-    private final TurnoRepository turnoRepository;
-    private final RichiestaAdozioneRepository richiestaAdozioneRepository;
-    private final RecensioneRepository recensioneRepository;
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
-    public DataInitializer(CredenzialiRepository credenzialiRepository,
-                            AnimaleRepository animaleRepository,
-                            TurnoRepository turnoRepository,
-                            RichiestaAdozioneRepository richiestaAdozioneRepository,
-                            RecensioneRepository recensioneRepository) {
-        this.credenzialiRepository = credenzialiRepository;
-        this.animaleRepository = animaleRepository;
-        this.turnoRepository = turnoRepository;
-        this.richiestaAdozioneRepository = richiestaAdozioneRepository;
-        this.recensioneRepository = recensioneRepository;
+    private final UtenteRepository utenteRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public DataInitializer(UtenteRepository utenteRepository, PasswordEncoder passwordEncoder) {
+        this.utenteRepository = utenteRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
-        // Questa classe inizialmente inseriva dati di prova (volontari, animali,
-        // turni, richieste, recensioni) per poter sviluppare e testare l'applicazione
-        // senza dover compilare tutto a mano. Ora che l'app e' pronta per l'uso reale,
-        // il metodo NON inserisce piu' nulla: si limita a ripulire, una sola volta,
-        // gli eventuali dati di prova rimasti da una vecchia esecuzione, cosi' che
-        // l'utente possa inserire i propri animali/volontari/ecc. dall'interfaccia.
-        //
-        // Il controllo cerca le credenziali "marco.volontario", marcatore dei vecchi
-        // dati di prova: se non esistono (perche' non sono mai state create, o perche'
-        // la pulizia e' gia' stata eseguita in un avvio precedente) il metodo non fa
-        // nulla, quindi resta sicuro anche sui riavvii successivi e non tocca mai
-        // i dati reali inseriti dall'utente.
-        boolean datiDiProvaPresenti = credenzialiRepository.findByUsername("marco.volontario").isPresent();
-        if (!datiDiProvaPresenti) {
+        if (!utenteRepository.findByRuolo(Ruolo.ADMIN).isEmpty()) {
             return;
         }
 
-        recensioneRepository.deleteAll();
-        richiestaAdozioneRepository.deleteAll();
-        turnoRepository.deleteAll();
-        animaleRepository.deleteAll();
-        credenzialiRepository.deleteAll(); // cascade ALL rimuove anche gli Utente collegati
+        Utente admin = new Utente();
+        admin.setNome("Admin");
+        admin.setCognome("Rifugio");
+        admin.setUsername("admin");
+        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setRuolo(Ruolo.ADMIN);
+        utenteRepository.save(admin);
 
-        System.out.println(">>> Dati di prova rimossi: il database e' ora vuoto.");
+        logger.info(">>> Nessun amministratore presente: creato l'account iniziale "
+                + "username 'admin' / password 'admin'. Cambia la password dopo il primo accesso.");
     }
 }

@@ -1,9 +1,22 @@
 package it.uniroma3.siw.progettopersonale.exception;
 
-/** Lanciata quando un utente tenta di inserire una seconda recensione per lo stesso volontario. */
-public class RecensioneVolontarioGiaPresenteException extends RuntimeException {
-
-    public RecensioneVolontarioGiaPresenteException() {
-        super("Hai già inserito una recensione per questo volontario.");
-    }
-}
+/*
+ * ============================================================
+ *  FILE NON PIU' USATO - si puo' cancellare senza conseguenze.
+ * ============================================================
+ *
+ *  Classe rimossa: RecensioneVolontarioGiaPresenteException
+ *  Motivo: non esistono piu' le recensioni sui volontari
+ *
+ *  Il sito e' stato semplificato sul modello di Movie Festival:
+ *  esiste UNA SOLA entita' Utente con dentro il Ruolo (ADMIN oppure
+ *  UTENTE). Non esiste piu' la figura del "volontario", e sono stati
+ *  tolti i turni e le recensioni sui volontari.
+ *
+ *  Questo file e' stato svuotato invece che cancellato solo perche' lo
+ *  strumento che scrive sul disco non sa eliminare file. Un file .java
+ *  senza dichiarazioni di tipo e' comunque codice valido: non produce
+ *  nessuna classe e non viene caricato da Spring.
+ *
+ *  Quando vuoi, eliminalo dal progetto.
+ */
